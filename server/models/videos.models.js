@@ -1,42 +1,44 @@
 import mongoose, { Schema, SchemaType } from 'mongoose';
 
 const videosSchema = new Schema({
-    userName: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
-        index: true
-    },
-    email: {
-        type: String,
-        required: true,
-        unique: true,
-        lowercase: true,
-        trim: true,
-        index: true
+    owner: {
+        type: Schema.Types.ObjectId,
+        ref: 'User'
 
     },
-    fullName: {
-        type: String,
-        trim: true,
-        index: true
-    }
-    ,
-    avatar: {
+    videoFile: {
         type: String,
         required: true,
+        unique: true,
+        trim: true
     },
-    coverImage: {
+    thumbnail: {
         type: String,
+        required: true,
+    }
+    ,
+    title: {
+        type: String,
+        required: true,
+    }
+    , description: {
+        type: String,
+    }
+    ,
+    views: {
+        type: Number,
+        default: 0,
     },
-    watchHistory: [
-        {
-            type:Schema.Types.ObjectId,
-            ref:"Videos"
-        }
-    ]
-});
+    duration: {
+        type: Number,
+        required: true,
+        default: 0
+    },
+    isPublished: {
+        type: Boolean,
+        default: false
+    }
+
+}, { timestamps: true });
 
 export const Videos = mongoose.model("Videos", videosSchema);
