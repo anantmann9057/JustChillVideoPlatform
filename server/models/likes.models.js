@@ -1,4 +1,5 @@
 import mongoose, { Schema, SchemaType } from 'mongoose';
+import aggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 const likesSchema = new Schema({
     
@@ -24,5 +25,5 @@ const likesSchema = new Schema({
   
 
 }, { timestamps: true });
-
+likesSchema.plugin(aggregatePaginate);
 export const Likes = mongoose.model("Likes", likesSchema);

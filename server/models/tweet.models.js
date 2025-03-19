@@ -1,4 +1,5 @@
 import mongoose, { Schema, SchemaType } from 'mongoose';
+import aggregatePaginate from 'mongoose-aggregate-paginate-v2';
 
 const tweetSchema = new Schema({
     //person subscribing
@@ -18,5 +19,6 @@ const tweetSchema = new Schema({
 
 
 }, { timestamps: true });
+tweetSchema.plugin(aggregatePaginate);
 
 export const Tweet = mongoose.model("Tweet", likesSchema);
