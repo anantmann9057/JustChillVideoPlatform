@@ -1,6 +1,7 @@
 import mongoose, { Schema, SchemaType } from 'mongoose';
 import aggregatePaginate from 'mongoose-aggregate-paginate-v2';
-
+import bcrypt from 'bcrypt';
+import jwt from 'jsonwebtoken';
 const userScheme = new Schema({
     userName: {
         type: String,
@@ -46,5 +47,28 @@ const userScheme = new Schema({
     }
 }, { timestamps: true });
 userScheme.plugin(aggregatePaginate);
+userScheme.pre('save', async function (next) {
+    if (!this.modified('password')) {
+        return next();
+    }
+    this.password = bcrypt.hash(this.password, 10, function (err, hash) {
+        // Store hash in your password DB.
+    });
+    next();
+});
+userScheme.methods.isPasswordCorrect = async function (password) {
 
+    return await bcrypt.compare(password, this.password);
+
+}
+userScheme.methods.generateAccessToken = function () {
+    //short lived access token
+
+    jwt.sign({
+        _id: this._id,
+        email: this.email,
+        userName: this.userName
+    }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:  process.env.ACCESS_TOKEN_EXPIRY });
+
+}
 export const User = mongoose.model("User", userScheme);
