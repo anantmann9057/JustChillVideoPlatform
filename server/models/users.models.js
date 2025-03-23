@@ -71,4 +71,14 @@ userScheme.methods.generateAccessToken = function () {
     }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:  process.env.ACCESS_TOKEN_EXPIRY });
 
 }
+
+userScheme.methods.generateRefreshToken = function () {
+    //short lived refersh token
+
+    jwt.sign({
+        _id: this._id,
+      
+    }, process.env.REFRESH_TOKEN_SECRET, { expiresIn:  process.env.REFRESH_TOKEN_EXPIRY });
+
+}
 export const User = mongoose.model("User", userScheme);
