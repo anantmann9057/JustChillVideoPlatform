@@ -4,6 +4,7 @@ import { connectDB } from './db/index.js';
 import healthcheckRouter from './routes/healthcheck.routes.js';
 import cookieParser from 'cookie-parser';
 import userRouter from './routes/user.route.js';
+import { errorHandler } from './middlewares/error.middlewares.js';
 const app = express();
 app.use(cookieParser())
 
@@ -34,4 +35,5 @@ app.use('/api/v1/healthCheck', healthcheckRouter);
 
 app.use('/api/v1/users', userRouter);
 
+app.use(errorHandler);
 export { app };

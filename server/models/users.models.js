@@ -48,12 +48,10 @@ const userScheme = new Schema({
 }, { timestamps: true });
 userScheme.plugin(aggregatePaginate);
 userScheme.pre('save', async function (next) {
-    if (!this.modified('password')) {
+    if (!this.isModified('password')) {
         return next();
     }
-    this.password = bcrypt.hash(this.password, 10, function (err, hash) {
-        // Store hash in your password DB.
-    });
+    this.password =await  bcrypt.hash(this.password, 10);
     next();
 });
 userScheme.methods.isPasswordCorrect = async function (password) {
@@ -68,7 +66,7 @@ userScheme.methods.generateAccessToken = function () {
         _id: this._id,
         email: this.email,
         userName: this.userName
-    }, process.env.ACCESS_TOKEN_SECRET, { expiresIn:  process.env.ACCESS_TOKEN_EXPIRY });
+    }, process.env.ACCESS_TOKEN_SECRET, { expiresIn: process.env.ACCESS_TOKEN_EXPIRY });
 
 }
 
@@ -77,8 +75,8 @@ userScheme.methods.generateRefreshToken = function () {
 
     jwt.sign({
         _id: this._id,
-      
-    }, process.env.REFRESH_TOKEN_SECRET, { expiresIn:  process.env.REFRESH_TOKEN_EXPIRY });
+
+    }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRY });
 
 }
 export const User = mongoose.model("User", userScheme);

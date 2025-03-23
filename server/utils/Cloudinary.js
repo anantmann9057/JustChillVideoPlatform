@@ -15,7 +15,6 @@ const uploadFile = async (fileUrl) => {
         const fileResponse = await cloudinary.uploader
             .upload(
                 fileUrl, {
-                public_id: 'videos',
                 resource_type: 'auto'
             }
             )
@@ -37,11 +36,21 @@ const uploadFile = async (fileUrl) => {
 
 };
 
-
+const deleteFile = async (publicId) => {
+    if (!publicId) return null;
+    try {
+        let result = await cloudinary.uploader.destroy(publicId);
+        console.log('deleted file', publicId);
+        return result;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
+}
 // Optimize delivery by resizing and applying auto-format and auto-quality
 const optimizeUrl = cloudinary.url('shoes', {
     fetch_format: 'auto',
     quality: 'auto'
 });
-
 console.log(optimizeUrl);
+export { uploadFile, deleteFile }
