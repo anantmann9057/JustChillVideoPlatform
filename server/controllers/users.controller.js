@@ -252,12 +252,48 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
             $match: {
                 userName: username?.toLowerCase()
             },
-            $lookup:{
-                from:"subscriptions"
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            },
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            },
+            $addFields: {
+                subscribersCount: {
+                    $size: '$subscribers'
+                },
+                channelSubscribed: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: {
+                            $in: [req.user._id, "$subscribers.subscriber"],
+                        }, then: true, else: false
+                    }
+                }
+            },
+            //only neccessary data
+            $project: {
+                // "userName": "asdasdas",
+                // "email": "asdasd@asdasd,",
+                // "avatar": "http://res.cloudinary.com/dej2glgqx/image/upload/v1742737751/duqq26c3mlrmttfwq9xv.png",
+                // "coverImage": "http://res.cloudinary.com/dej2glgqx/image/upload/v1742737756/evhjpit4ttos2ymhrx3g.png",
+                // "watchHistory": [],
+                userName: 1, email: 1, avatar: 1, subscribersCount: 1, channelsSubscribedTo: 1, isSubscribed: 1, coverImage: 1,
             }
         }
     ]);
-    if(!channel) throw new ApiErrorResponse(400,'Channel not found!');
+    if (!channel) throw new ApiErrorResponse(400, 'Channel not found!');
+
+
+    res.json(new ApiResponse(200, channel));
 });
 
 const getUserWatchHistory = asyncHandler(async (req, res) => {
@@ -272,5 +308,6 @@ export {
     getCurrentUser,
     updateAccountDetails,
     updateUserAvatar,
-    updateUserCover
+    updateUserCover,
+    getUserChannelProfile
 }
