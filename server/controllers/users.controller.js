@@ -4,6 +4,7 @@ import { ApiErrorResponse } from "../utils/ApiErrorResponse.js"
 import { User } from '../models/users.models.js';
 import { deleteFile, uploadFile } from "../utils/Cloudinary.js";
 import jwt from 'jsonwebtoken';
+import mongoose from "mongoose";
 const registerUser = asyncHandler(async (req, res) => {
     console.log(req.body);
     if (!req.body) throw new ApiErrorResponse(400, 'bruh! Atleast send something');
@@ -250,7 +251,7 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
     const channel = await User.aggregate([
         {
             $match: {
-                'user_name': `${username?.toLowerCase()}`
+                userName: `${username?.toLowerCase()}`
             },
 
         },
@@ -312,61 +313,55 @@ const getUserWatchHistory = asyncHandler(async (req, res) => {
     const username = req.body['username'] || req.query.username;
 
 
-    const channel = await User.aggregate([
+    const user = await User.aggregate([
         {
             $match: {
-                'user_name': `${username?.toLowerCase()}`
+                _id: new mongoose.Types.ObjectId(req.user._id)
             },
-
         },
         {
             $lookup: {
-                from: "subscriptions",
-                localField: "_id",
-                foreignField: "channel",
-                as: "subscribers"
-            },
+                from: "videos",
+                localField: "watchHistory",
+                foreignField: "_id",
+                as: "watchHistory",
+                pipeline: [
+                    {
+                        $lookup: {
+                            from: "videos",
+                            localField: "owner",
+                            foreignField: "_id",
+                            as: "owner",
+                            pipeline: [
+                                {
+                                    //to only fetch data we want
+                                    $project: {
+                                        userName: 1, email: 1, avatar: 1, subscribersCount: 1, channelsSubscribedTo: 1, isSubscribed: 1, coverImage: 1,
+                                    }
+                                }
+                            ]
+                        },
 
-        },
-        {
-            $lookup: {
-                from: "subscriptions",
-                localField: "_id",
-                foreignField: "subscriber",
-                as: "subscribedTo"
-            },
-
-        }, {
-            $addFields: {
-                subscribersCount: {
-                    $size: '$subscribers'
-                },
-                channelSubscribed: {
-                    $size: "$subscribedTo"
-                },
-                isSubscribed: {
-                    $cond: {
-                        if: {
-                            $in: [req.user._id, "$subscribers.subscriber"],
-                        }, then: true, else: false
+                    },
+                    {
+                        $addFields: {
+                            owner: {
+                                $first: "$owner"
+                            }
+                        }
                     }
-                }
+                ],
+
+
             },
-            //only neccessary data
 
         },
-        {
-            $project: {
-                // "userName": "asdasdas",
-                // "email": "asdasd@asdasd,",
-                // "avatar": "http://res.cloudinary.com/dej2glgqx/image/upload/v1742737751/duqq26c3mlrmttfwq9xv.png",
-                // "coverImage": "http://res.cloudinary.com/dej2glgqx/image/upload/v1742737756/evhjpit4ttos2ymhrx3g.png",
-                // "watchHistory": [],
-                userName: 1, email: 1, avatar: 1, subscribersCount: 1, channelsSubscribedTo: 1, isSubscribed: 1, coverImage: 1,
-            }
-        }
-    ]);
 
+    ]);
+    if (!user) throw new ApiErrorResponse(400, 'Channel not found!');
+
+
+    return res.json(new ApiResponse(200, user));
 })
 export {
     registerUser,
@@ -378,5 +373,6 @@ export {
     updateAccountDetails,
     updateUserAvatar,
     updateUserCover,
-    getUserChannelProfile
+    getUserChannelProfile,
+    getUserWatchHistory
 }
