@@ -1,4 +1,4 @@
-import { registerUser, loginUser, refreshAccessToken, logoutUser, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUserCover } from "../controllers/users.controller.js";
+import { registerUser, loginUser, refreshAccessToken, logoutUser, changeCurrentPassword, getCurrentUser, updateAccountDetails, updateUserAvatar, updateUserCover, getUserChannelProfile } from "../controllers/users.controller.js";
 import { Router } from "express";
 import { upload } from "../middlewares/multer.middlewares.js";
 import { verifyJwt } from "../middlewares/auth.middlewares.js";
@@ -29,5 +29,6 @@ userRouter.route('/updateCover').post(upload.fields([
         name: 'coverImage', maxCount: 1
     }
 ]), verifyJwt, updateUserCover);
+userRouter.route('/getChannelProfile').get(verifyJwt, getUserChannelProfile);
 
 export default userRouter;

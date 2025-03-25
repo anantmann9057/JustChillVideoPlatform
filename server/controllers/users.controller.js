@@ -245,25 +245,33 @@ const updateUserCover = asyncHandler(async (req, res) => {
 
 
 const getUserChannelProfile = asyncHandler(async (req, res) => {
-    if (!req.body.username) throw new ApiErrorResponse(400, 'user not found')
-
+    if (!req.body['username'] && !req.query.username) throw new ApiErrorResponse(400, 'input username ')
+    const username = req.body['username'] || req.query.username;
     const channel = await User.aggregate([
         {
             $match: {
-                userName: username?.toLowerCase()
+                'user_name': `${username?.toLowerCase()}`
             },
+
+        },
+        {
             $lookup: {
                 from: "subscriptions",
                 localField: "_id",
                 foreignField: "channel",
                 as: "subscribers"
             },
+
+        },
+        {
             $lookup: {
                 from: "subscriptions",
                 localField: "_id",
                 foreignField: "subscriber",
                 as: "subscribedTo"
             },
+
+        }, {
             $addFields: {
                 subscribersCount: {
                     $size: '$subscribers'
@@ -280,6 +288,9 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
                 }
             },
             //only neccessary data
+
+        },
+        {
             $project: {
                 // "userName": "asdasdas",
                 // "email": "asdasd@asdasd,",
@@ -297,6 +308,64 @@ const getUserChannelProfile = asyncHandler(async (req, res) => {
 });
 
 const getUserWatchHistory = asyncHandler(async (req, res) => {
+    if (!req.body['username'] && !req.query.username) throw new ApiErrorResponse(400, 'input username ');
+    const username = req.body['username'] || req.query.username;
+
+
+    const channel = await User.aggregate([
+        {
+            $match: {
+                'user_name': `${username?.toLowerCase()}`
+            },
+
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "channel",
+                as: "subscribers"
+            },
+
+        },
+        {
+            $lookup: {
+                from: "subscriptions",
+                localField: "_id",
+                foreignField: "subscriber",
+                as: "subscribedTo"
+            },
+
+        }, {
+            $addFields: {
+                subscribersCount: {
+                    $size: '$subscribers'
+                },
+                channelSubscribed: {
+                    $size: "$subscribedTo"
+                },
+                isSubscribed: {
+                    $cond: {
+                        if: {
+                            $in: [req.user._id, "$subscribers.subscriber"],
+                        }, then: true, else: false
+                    }
+                }
+            },
+            //only neccessary data
+
+        },
+        {
+            $project: {
+                // "userName": "asdasdas",
+                // "email": "asdasd@asdasd,",
+                // "avatar": "http://res.cloudinary.com/dej2glgqx/image/upload/v1742737751/duqq26c3mlrmttfwq9xv.png",
+                // "coverImage": "http://res.cloudinary.com/dej2glgqx/image/upload/v1742737756/evhjpit4ttos2ymhrx3g.png",
+                // "watchHistory": [],
+                userName: 1, email: 1, avatar: 1, subscribersCount: 1, channelsSubscribedTo: 1, isSubscribed: 1, coverImage: 1,
+            }
+        }
+    ]);
 
 })
 export {
