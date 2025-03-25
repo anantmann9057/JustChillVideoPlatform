@@ -47,22 +47,23 @@ const userScheme = new Schema({
     }
 }, { timestamps: true });
 userScheme.plugin(aggregatePaginate);
+
 userScheme.pre('save', async function (next) {
     if (!this.isModified('password')) {
         return next();
     }
-    this.password =await  bcrypt.hash(this.password, 10);
+    this.password = await bcrypt.hash(this.password, 10);
     next();
 });
-userScheme.methods.isPasswordCorrect = async function (password) {
 
+userScheme.methods.isPasswordCorrect = async function (password) {
     return await bcrypt.compare(password, this.password);
 
 }
-userScheme.methods.generateAccessToken = function () {
+userScheme.methods.generateAccessToken = async function () {
     //short lived access token
 
-    jwt.sign({
+    return jwt.sign({
         _id: this._id,
         email: this.email,
         userName: this.userName
@@ -70,12 +71,11 @@ userScheme.methods.generateAccessToken = function () {
 
 }
 
-userScheme.methods.generateRefreshToken = function () {
+userScheme.methods.generateRefreshToken = async function () {
     //short lived refersh token
 
-    jwt.sign({
+    return jwt.sign({
         _id: this._id,
-
     }, process.env.REFRESH_TOKEN_SECRET, { expiresIn: process.env.REFRESH_TOKEN_EXPIRY });
 
 }
