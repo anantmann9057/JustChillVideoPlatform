@@ -1,24 +1,29 @@
-import mongoose, { Schema, SchemaType } from 'mongoose';
-import aggregatePaginate from 'mongoose-aggregate-paginate-v2';
+import mongoose, { isValidObjectId } from "mongoose"
 
-const tweetSchema = new Schema({
-    //person subscribing
-    content: {
-        type: String,
-        required:true,
+import { asyncHandler } from "../utils/asynchandler.js"
+import { ApiResponse } from "../utils/apiResponse.js"
+import { ApiErrorResponse } from "../utils/ApiErrorResponse.js"
+import { uploadFile } from "../utils/Cloudinary.js"
+import { Tweet } from "../models/tweet.models.js"
+const createTweet = asyncHandler(async (req, res) => {
+    //TODO: create tweet
+})
 
-    },
-        //person who is the channel
+const getUserTweets = asyncHandler(async (req, res) => {
+    // TODO: get user tweets
+})
 
-    owner: {
-        type: Schema.Types.ObjectId,
-        ref: 'User'
+const updateTweet = asyncHandler(async (req, res) => {
+    //TODO: update tweet
+})
 
-    }
+const deleteTweet = asyncHandler(async (req, res) => {
+    //TODO: delete tweet
+})
 
-
-
-}, { timestamps: true });
-tweetSchema.plugin(aggregatePaginate);
-
-export const Tweet = mongoose.model("Tweet", likesSchema);
+export {
+    createTweet,
+    getUserTweets,
+    updateTweet,
+    deleteTweet
+}

@@ -37,10 +37,10 @@ const registerUser = asyncHandler(async (req, res) => {
 
     if (user) throw new ApiErrorResponse(409, 'user already exists');
 
-    var avatarUrl = await uploadFile(req.files.avatar[0].path);
+    var avatarUrl = await uploadFile(req.files.avatar?.[0].path);
 
 
-    var coverImageUrl = await uploadFile(req.files.coverImage[0].path);
+    var coverImageUrl = await uploadFile(req.files.coverImage?.[0].path);
 
     try {
         var newUser = await User.create({

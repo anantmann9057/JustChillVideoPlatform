@@ -15,14 +15,15 @@ const videosSchema = new Schema({
     },
     thumbnail: {
         type: String,
-        required: true,
+        required: false,
     }
     ,
     title: {
         type: String,
         required: true,
     }
-    , description: {
+    ,
+    description: {
         type: String,
     }
     ,
