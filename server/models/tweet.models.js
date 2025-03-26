@@ -13,7 +13,6 @@ const tweetSchema = new Schema({
     owner: {
         type: Schema.Types.ObjectId,
         ref: 'User'
-
     }
 
 
@@ -21,4 +20,4 @@ const tweetSchema = new Schema({
 }, { timestamps: true });
 tweetSchema.plugin(aggregatePaginate);
 
-export const Tweet = mongoose.model("Tweet", likesSchema);
+export const Tweet = mongoose.model("Tweet", tweetSchema);
