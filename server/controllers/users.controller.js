@@ -1,10 +1,11 @@
-import { asyncHandler } from "../utils/asynchandler.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js"
 import { User } from '../models/users.models.js';
 import { deleteFile, uploadFile } from "../utils/Cloudinary.js";
 import jwt from 'jsonwebtoken';
 import mongoose from "mongoose";
+import { ApiResponse } from "../utils/ApiResponse.js";
+import { asyncHandler } from "../utils/asyncHandler.js";
 const registerUser = asyncHandler(async (req, res) => {
     console.log(req.body);
     if (!req.body) throw new ApiErrorResponse(400, 'bruh! Atleast send something');

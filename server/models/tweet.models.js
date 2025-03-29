@@ -5,14 +5,14 @@ const tweetSchema = new Schema({
     //person subscribing
     content: {
         type: String,
-        required:true,
+        required: true,
 
     },
-        //person who is the channel
+    //person who is the channel
 
     owner: {
         type: Schema.Types.ObjectId,
-        ref: 'User'
+        ref: 'User',
     }
 
 

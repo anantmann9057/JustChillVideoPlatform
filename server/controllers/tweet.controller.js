@@ -26,7 +26,7 @@ const getUserTweets = asyncHandler(async (req, res) => {
 
 
     let findTweet = await Tweet.find({
-        owner:req.user._id
+        owner: req.user._id
     });
 
     if (!findTweet) throw new ApiErrorResponse(400, 'something went wrong creating tweet');
@@ -35,11 +35,39 @@ const getUserTweets = asyncHandler(async (req, res) => {
 })
 
 const updateTweet = asyncHandler(async (req, res) => {
-    //TODO: update tweet
-})
+    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
+    if (!req.body.content && !req.query.content && !req.params.content) throw new ApiErrorResponse(400, 'please input content');
+    if (!req.body.tweetId && !req.query.tweetId && !req.params.tweetId) throw new ApiErrorResponse(400, 'please input id');
 
+    let findTweet = await Tweet.findByIdAndUpdate(req.body.tweetId || req.query.tweetId || req.params.tweetId, {
+        $set: {
+            content: req.body.content || req.query.content || req.params.content
+        }
+    }, {
+        new: true
+    });
+
+    if (!findTweet) throw new ApiErrorResponse(400, 'something went wrong');
+    findTweet.save({ validateBeforeSave: false });
+
+
+    return res.status(200).json(new ApiResponse(200, findTweet, 'tweet updated successfully'));
+
+})
+//fix updation issue
 const deleteTweet = asyncHandler(async (req, res) => {
-    //TODO: delete tweet
+    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
+    if (!req.body.tweetId && !req.query.tweetId && !req.params.tweetId) throw new ApiErrorResponse(400, 'please input id');
+
+    let findTweet = await Tweet.findByIdAndDelete(req.body.tweetId || req.query.tweetId || req.params.tweetId, {
+    }, {
+        new: true
+    });
+
+    if (!findTweet) throw new ApiErrorResponse(400, 'tweet not found');
+
+
+    return res.status(200).json(new ApiResponse(200, findTweet, 'tweet deleted successfully'));
 })
 
 export {

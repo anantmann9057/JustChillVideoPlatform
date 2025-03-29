@@ -8,9 +8,8 @@ const subscriptionSchema = new Schema({
         ref: 'User'
 
     },
-        //person who is the channel
-
-    channel: {
+   //person who is the channel
+     channel: {
         type: Schema.Types.ObjectId,
         ref: 'User'
 
@@ -21,4 +20,4 @@ const subscriptionSchema = new Schema({
 }, { timestamps: true });
 subscriptionSchema.plugin(aggregatePaginate);
 
-export const Subscription = mongoose.model("Subscription", likesSchema);
+export const Subscription = mongoose.model("Subscription", subscriptionSchema);

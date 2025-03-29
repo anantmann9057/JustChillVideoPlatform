@@ -2,6 +2,7 @@ import mongoose from "mongoose";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
 import jwt from 'jsonwebtoken';
 const errorHandler = (err, req, res, next) => {
+    
     let error = err;
     if (!(error instanceof ApiErrorResponse) && !(error instanceof jwt.JsonWebTokenError)) {
         const statusCode = 500;

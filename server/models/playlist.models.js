@@ -38,4 +38,4 @@ const playlistSchema = new Schema({
 }, { timestamps: true });
 playlistSchema.plugin(aggregatePaginate);
 
-export const PlayList = mongoose.model("Playlist", videosSchema);
+export const Playlist = mongoose.model("Playlist", playlistSchema);

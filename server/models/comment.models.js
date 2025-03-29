@@ -12,10 +12,10 @@ const commentSchema = new Schema({
         type: Schema.Types.ObjectId,
         ref: 'User'
 
-    }, content: {
+    }, 
+    content: {
         type: String,
         required: true
-
     },
 
 
@@ -24,4 +24,4 @@ const commentSchema = new Schema({
 
 commentSchema.plugin(aggregatePaginate);
 
-export const Comment = mongoose.model("Comment", likesSchema);
+export const Comment = mongoose.model("Comment", commentSchema);
