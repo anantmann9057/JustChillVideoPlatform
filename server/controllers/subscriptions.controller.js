@@ -1,79 +1,65 @@
 import { Subscription } from "../models/subscriptions.models.js";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
-import { asyncHandler } from "../utils/asyncHandler.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+import { asyncHandler } from "../utils/asynchandler.js";
+import extractInput from "../utils/Helper.js";
 
-
-
-
-
+// Toggle subscription
 const toggleSubscription = asyncHandler(async (req, res) => {
-    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
-    const { channelId } = req.body.channel_id || req.query.channel_id || req.params.channel_id;
+    const { channel_id, type } = extractInput(req, ["channel_id", "type"]);
 
+    if (type === 1) {
+        const existingSubscription = await Subscription.findOne({ channel: channel_id });
+        if (existingSubscription) {
+            return res.status(200).json(new ApiResponse(200, existingSubscription, "You are already subscribed"));
+        }
 
-    if (!req.body.type && !req.query.type && !req.params.type) throw new ApiErrorResponse(400, 'please input type');
-
-    if (req.body.type == 1 || req.query.type == 1 || req.params.type == 1) {
-        let findChannel = await Subscription.findOne({
-            channel: channelId,
+        const newSubscription = await Subscription.create({
+            channel: channel_id,
+            likedBy: req.user._id,
         });
 
-        if (!findChannel) {
-            let channel = await Subscription.create({
-                channel: channelId,
-                likedBy: req.user._id
-            },);
-            return res.status(200).json(new ApiResponse(200, channel, 'success'));
-        }
-        else {
-            return res.status(200).json(new ApiResponse(200, findChannel, 'You already are already subscribed'));
-        }
+        return res.status(200).json(new ApiResponse(200, newSubscription, "Subscription successful"));
+    } else if (type === 0) {
+        const deletedSubscription = await Subscription.findOneAndDelete({ channel: channel_id });
+        if (!deletedSubscription) throw new ApiErrorResponse(400, "Subscription not found");
+
+        return res.status(200).json(new ApiResponse(200, deletedSubscription, "Unsubscribed successfully"));
+    } else {
+        throw new ApiErrorResponse(400, "Invalid subscription type");
     }
+});
 
-    else if (req.body.type == 0 || req.query.type == 0 || req.params.type == 0) {
-        let channel = await Subscription.findOneAndDelete({
-            channel: channelId,
-        });
-        if (!channel) throw new ApiErrorResponse(400, "video not found");
-        return res.status(200).json(new ApiResponse(200, channel, 'success'));
-    }
-
-})
-
-// controller to return subscriber list of a channel
+// Get subscriber list of a channel
 const getUserChannelSubscribers = asyncHandler(async (req, res) => {
-    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
-    const { channelId } = req.body.channel_id || req.query.channel_id || req.params.channel_id;
+    const { channel_id } = extractInput(req, ["channel_id"]);
 
-    let allSubscribers = await Subscription.aggregate([
-        {
-            $match: {
-                channel: channelId
-            }
-        }
+    const subscribers = await Subscription.aggregate([
+        { $match: { channel: channel_id } },
     ]);
 
-    if (!allSubscribers) throw new ApiErrorResponse(200, 'this channel has no subscribers!');
+    if (!subscribers || subscribers.length === 0) {
+        throw new ApiErrorResponse(200, "This channel has no subscribers");
+    }
 
-    return res.status(200).json(new ApiResponse(200, allSubscribers, 'Success'));
+    return res.status(200).json(new ApiResponse(200, subscribers, "Success"));
+});
 
-})
-
-// controller to return channel list to which user has subscribed
+// Get channels a user has subscribed to
 const getSubscribedChannels = asyncHandler(async (req, res) => {
-    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
-    const { subscriberId } = req.body || req.query || req.params;
+    const { subscriber_id } = extractInput(req, ["subscriber_id"]);
 
-    let allSubscriptions = await Subscription.findById(subscriberId);
+    const subscriptions = await Subscription.find({ likedBy: subscriber_id });
 
-    if (!allSubscriptions) throw new ApiErrorResponse(200, 'this user has not subscribe to any channel');
+    if (!subscriptions || subscriptions.length === 0) {
+        throw new ApiErrorResponse(200, "This user has not subscribed to any channels");
+    }
 
-    return res.status(200).json(new ApiResponse(200, allSubscriptions, 'Success'));
-})
+    return res.status(200).json(new ApiResponse(200, subscriptions, "Success"));
+});
 
 export {
     toggleSubscription,
     getUserChannelSubscribers,
-    getSubscribedChannels
-}
+    getSubscribedChannels,
+};

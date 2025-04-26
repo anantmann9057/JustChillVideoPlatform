@@ -1,90 +1,89 @@
-import { asyncHandler } from "../utils/asyncHandler.js";
-import { ApiResponse } from "../utils/ApiResponse.js";
+import { ApiResponse } from "../utils/apiResponse.js";
+import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
 import { Comment } from "../models/comment.models.js";
+import mongoose from "mongoose";
+
+// Helper function to extract and validate input
+const extractInput = (req, keys) => {
+  const input = {};
+  keys.forEach((key) => {
+    input[key] = req.body[key] || req.query[key] || req.params[key];
+    if (!input[key])
+      throw new ApiErrorResponse(400, `Missing or invalid ${key}`);
+  });
+  return input;
+};
+
 const getVideoComments = asyncHandler(async (req, res) => {
-    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
+  const { video_id } = extractInput(req, ["video_id"]);
+  const videoComments = await Comment.aggregate([
+    {
+      $match: {
+        videos: new mongoose.Types.ObjectId(video_id),
+      },
+    },
+    {
+        $lookup: {
+          from: 'users',
+          localField: 'owner',
+          foreignField: "_id",
+          as: 'owner'
+        }
+      }
+      ,
+      {
+        $addFields: {
+          owner: {
+            $arrayElemAt:["$owner",0]
+          }
+        }
+      }
+  ]);
 
-    if (!req.body.video_id && !req.query.video_id && !req.params.video_id) throw new ApiErrorResponse(400, 'invalid video id!');
+  if (!videoComments)
+    throw new ApiErrorResponse(200, "No comments on this video");
 
-
-    const { videoId } = req.body.video_id || req.query.video_id || req.params.video_id;
-    const { page = 1, limit = 10 } = req.query
-
-    let videoComments = await Comment.findById(videoId);
-
-    if (!videoComments) throw new ApiErrorResponse(200, 'no comments on this video');
-
-
-    return res.status(200).json(new ApiResponse(200, videoComments, 'Success'));
-
-
-})
+  return res.status(200).json(new ApiResponse(200, videoComments, "Success"));
+});
 
 const addComment = asyncHandler(async (req, res) => {
+  const { video_id, comment } = extractInput(req, ["video_id", "comment"]);
 
-    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
-    if (!req.body.video_id && !req.query.video_id && !req.params.video_id) throw new ApiErrorResponse(400, 'invalid video id!');
-    if (!req.body.comment && !req.query.comment && !req.params.comment) throw new ApiErrorResponse(400, 'please input comment');
+  const newComment = await Comment.create({
+    videos: video_id,
+    owner: req.user._id,
+    content: comment,
+  });
 
-    const videoId = req.body.video_id || req.query.video_id || req.params.video_id;
-    const comment = req.body.comment || req.query.comment || req.params.comment;
+  if (!newComment) throw new ApiErrorResponse(400, "Failed to publish comment");
 
-    let insertComment = await Comment.create({
-        videos: videoId,
-        owner: req.user._id,
-        content: comment
-    });
-
-    if (!insertComment) throw new ApiErrorResponse(400, 'something went wrong publishing comment')
-
-    return res.status(200).json(new ApiResponse(200, insertComment, 'success'));
-
-})
+  return res.status(200).json(new ApiResponse(200, newComment, "Success"));
+});
 
 const updateComment = asyncHandler(async (req, res) => {
-    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
-    if (!req.body.comment_id && !req.query.comment_id && !req.params.comment_id) throw new ApiErrorResponse(400, 'invalid comment id!');
-    if (!req.body.comment && !req.query.comment && !req.params.comment) throw new ApiErrorResponse(400, 'please input comment');
+  const { comment_id, comment } = extractInput(req, ["comment_id", "comment"]);
 
+  const updatedComment = await Comment.findByIdAndUpdate(
+    comment_id,
+    { $set: { content: comment } },
+    { new: true }
+  );
 
-    const commentId = req.body.comment_id || req.query.comment_id || req.params.comment_id;
-    const comment = req.body.comment || req.query.comment || req.params.comment;
+  if (!updatedComment)
+    throw new ApiErrorResponse(400, "Failed to update comment");
 
-    let updateComment = await Comment.findByIdAndUpdate(commentId, {
-        $set: {
-            content: comment
-        }
-    }, {
-        new: true
-    });
-    await updateComment.save({ validateBeforeSave: false })
-
-    if (!updateComment) throw new ApiErrorResponse(400, 'Something went wrong!');
-
-
-    return res.status(200).json(new ApiResponse(200, updateComment, 'success'));
-
-})
+  return res.status(200).json(new ApiResponse(200, updatedComment, "Success"));
+});
 
 const deleteComment = asyncHandler(async (req, res) => {
-    if (!req.body && !req.query && !req.params) throw new ApiErrorResponse(400, 'please input value');
-    if (!req.body.comment_id && !req.query.comment_id && !req.params.comment_id) throw new ApiErrorResponse(400, 'invalid comment id!');
+  const { comment_id } = extractInput(req, ["comment_id"]);
 
+  const deletedComment = await Comment.findByIdAndDelete(comment_id);
+  if (!deletedComment)
+    throw new ApiErrorResponse(400, "Failed to delete comment");
 
-    const commentId = req.body.comment_id || req.query.comment_id || req.params.comment_id;
+  return res.status(200).json(new ApiResponse(200, {}, "Success"));
+});
 
-    let updateComment = await Comment.findByIdAndDelete(commentId,);
-
-    if (!updateComment) throw new ApiErrorResponse(400, 'Something went wrong!');
-
-
-    return res.status(200).json(new ApiResponse(200, {}, 'success'));
-})
-
-export {
-    getVideoComments,
-    addComment,
-    updateComment,
-    deleteComment
-}
+export { getVideoComments, addComment, updateComment, deleteComment };
