@@ -1,4 +1,4 @@
-import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
 import { Comment } from "../models/comment.models.js";
@@ -24,21 +24,20 @@ const getVideoComments = asyncHandler(async (req, res) => {
       },
     },
     {
-        $lookup: {
-          from: 'users',
-          localField: 'owner',
-          foreignField: "_id",
-          as: 'owner'
-        }
-      }
-      ,
-      {
-        $addFields: {
-          owner: {
-            $arrayElemAt:["$owner",0]
-          }
-        }
-      }
+      $lookup: {
+        from: "users",
+        localField: "owner",
+        foreignField: "_id",
+        as: "owner",
+      },
+    },
+    {
+      $addFields: {
+        owner: {
+          $arrayElemAt: ["$owner", 0],
+        },
+      },
+    },
   ]);
 
   if (!videoComments)

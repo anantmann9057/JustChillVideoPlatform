@@ -3,7 +3,7 @@ import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
 import { Playlist } from "../models/playlist.models.js";
 import { Videos } from "../models/videos.models.js";
 import { asyncHandler } from "../utils/asynchandler.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import extractInput from "../utils/Helper.js";
 
 // Create a new playlist

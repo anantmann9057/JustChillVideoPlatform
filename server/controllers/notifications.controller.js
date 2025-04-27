@@ -2,7 +2,7 @@ import mongoose from "mongoose";
 import { Notifications } from "../models/notifications.models.js";
 import { Videos } from "../models/videos.models.js";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import extractInput from "../utils/Helper.js";
 

@@ -1,7 +1,7 @@
 import mongoose, { mongo } from "mongoose";
 import { Likes } from "../models/likes.models.js";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import extractInput from "../utils/Helper.js";
 import videosRouter from "../routes/videos.route.js";

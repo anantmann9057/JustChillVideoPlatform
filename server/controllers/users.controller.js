@@ -3,7 +3,7 @@ import { deleteFile, uploadFile } from "../utils/Cloudinary.js";
 import jwt from "jsonwebtoken";
 import mongoose, { Schema } from "mongoose";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
-import { ApiResponse } from "../utils/apiResponse.js";
+import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import extractInput from "../utils/Helper.js";
 import { lookup } from "dns";
