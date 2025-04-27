@@ -44,7 +44,7 @@ export default function LoginPage() {
 
   return (
     <div
-      className="container-fluid d-flex align-items-center justify-content-center min-vh-100 px-3"
+      className="container-fluid d-flex align-items-center justify-content-center min-vh-100 px-3 p-0 m-0"
       style={{
         backgroundColor: "#000",
         position: "relative",

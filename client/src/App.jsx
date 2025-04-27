@@ -30,12 +30,14 @@ function App() {
             )
           }
         ></Route>
-        <Route path="/profile" element={<VideosProvider>
-         { !isLoggedIn ? (
-              <LoginPage></LoginPage>
-            ) : <ProfileScreen />}
-        </VideosProvider>}></Route>
-
+        <Route
+          path="/profile"
+          element={
+            <VideosProvider>
+              {!isLoggedIn ? <LoginPage></LoginPage> : <ProfileScreen />}
+            </VideosProvider>
+          }
+        ></Route>
       </Routes>
     </>
   );
