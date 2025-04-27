@@ -6,13 +6,14 @@ import Avatar from "@mui/material/Avatar";
 import Modal from "react-bootstrap/Modal";
 import Button from "react-bootstrap/Button";
 import axios from "axios";
-import CommentSection from "./CommentSection";
+import CommentSection from "../../Home/elements/CommentSection";
 import FavoriteBorderIcon from "@mui/icons-material/FavoriteBorder";
 import Spinner from "react-bootstrap/Spinner";
 import { useComments } from "../../Context/CommentsContext";
 import { useNotifications } from "../../Context/NotificationsContext";
 import { useLogin } from "../../Context/LoginContext";
-export default function VideoTile(props) {
+
+export default function VideoTileProfile(props) {
   const { comments, getComments, postComment } = useComments();
   const [isOpen, setIsOpen] = useState(false);
   const [liked, setLiked] = useState(false);
@@ -20,10 +21,10 @@ export default function VideoTile(props) {
   const [isLoading, setIsLoading] = useState(false);
   const { sendNotifications } = useNotifications();
   const { logout, token } = useLogin();
+
   const handleLike = () => {
     if (liked) {
       setLiked(false);
-
       unlikeVideo();
     } else {
       setLiked(true);
@@ -31,7 +32,8 @@ export default function VideoTile(props) {
     }
   };
 
-  function likeVideo() {
+  const likeVideo = () => {
+    setIsLoading(true);
     axios
       .post("http://localhost:3000/api/v1/likes/toggle-video-like", null, {
         headers: {
@@ -46,22 +48,19 @@ export default function VideoTile(props) {
           logout();
         } else {
           setLikesCount(likesCount + 1);
-          sendNotifications( "like",props.items._id);
+          sendNotifications("like", props.items._id);
         }
       })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }
+      .catch((error) => console.error(error))
+      .finally(() => setIsLoading(false));
+  };
 
-  function unlikeVideo() {
+  const unlikeVideo = () => {
+    setIsLoading(true);
     axios
       .post("http://localhost:3000/api/v1/likes/toggle-video-unlike", null, {
         headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
+          Authorization: "Bearer " + token,
         },
         params: {
           video_id: props.items._id,
@@ -69,31 +68,26 @@ export default function VideoTile(props) {
       })
       .then((response) => {
         if (response.status === 401) {
-          localStorage.clear("user");
-          localStorage.clear("token");
-          window.location.reload();
+          logout();
         } else {
           setLikesCount(likesCount - 1);
         }
       })
-      .catch((error) => {
-        console.error(error);
-      })
-      .finally(() => {
-        setIsLoading(false);
-      });
-  }
-  function getCommentsOnVideo() {
+      .catch((error) => console.error(error))
+      .finally(() => setIsLoading(false));
+  };
+
+  const getCommentsOnVideo = () => {
     setIsLoading(true);
     getComments(props.items._id);
     setIsOpen(true);
-
     setIsLoading(false);
-  }
+  };
+
   useEffect(() => {
     setLiked(props.items.isLiked);
+  }, [props.items.isLiked]);
 
-  }, []);
   function MyVerticallyCenteredModal(props) {
     const [newComment, setNewComment] = useState("");
 
@@ -114,10 +108,9 @@ export default function VideoTile(props) {
           className="h-50"
           style={{
             maxHeight: "400px",
-            overflow: "scroll",
+            overflowY: "auto",
           }}
         >
-          {/* Comment input section */}
           <div className="mb-4">
             <textarea
               className="form-control"
@@ -132,15 +125,14 @@ export default function VideoTile(props) {
                 variant="danger"
                 onClick={() => {
                   postComment(newComment, props.videoId);
-                  sendNotifications('comment', props.videoId)
+                  setNewComment(""); // Clear the input after posting
                 }}
               >
-                {"Post Comment"}
+                Post Comment
               </Button>
             </div>
           </div>
 
-          {/* Comments list */}
           {comments ? (
             <div>
               {comments.map((comm, index) => (
@@ -166,13 +158,15 @@ export default function VideoTile(props) {
 
   return (
     <div
-      className="col-12 col-md-4 mb-4 w-100 position-relative"
+      className="col-12 col-md-3 mb-4 w-100 position-relative"
       style={{
         backgroundColor: "#1a1a1a",
         borderRadius: "15px",
         overflow: "hidden",
         boxShadow: "0 0 15px rgba(255, 0, 0, 0.3)",
         transition: "transform 0.3s ease-in-out, box-shadow 0.3s ease",
+        width: "250px", // Adjust width for smaller size
+        height: "250px", // Adjust height for square shape
       }}
       onMouseEnter={(e) => {
         e.currentTarget.style.transform = "scale(1.05)";
@@ -183,7 +177,6 @@ export default function VideoTile(props) {
         e.currentTarget.style.boxShadow = "0 0 15px rgba(255, 0, 0, 0.3)";
       }}
     >
-      {/* Particle Overlay */}
       <div
         style={{
           position: "absolute",
@@ -205,13 +198,14 @@ export default function VideoTile(props) {
         }}
       ></div>
 
-      {/* Video Player */}
       <div
         style={{
           overflow: "hidden",
           borderRadius: "15px",
           position: "relative",
           zIndex: 2,
+          height: "100%", // Fit the height to the square container
+          width: "100%", // Fit the width to the square container
         }}
       >
         <ReactPlayer
@@ -224,39 +218,63 @@ export default function VideoTile(props) {
               : "https://knetic.org.uk/wp-content/uploads/2020/07/Video-Placeholder.png"
           }
           width="100%"
-          height="400px"
+          height="100%" // Ensure the video takes up the full height of the container
           style={{ borderRadius: "15px" }}
         />
       </div>
 
-      {/* Owner Info */}
       <div
-        className="d-flex align-items-center mt-3 p-3"
+        className="d-flex align-items-center mt-2 p-2"
         style={{ position: "relative", zIndex: 2 }}
       >
         <Avatar
           alt={props.items.owner.userName}
           src={props.items.owner.avatar}
-          style={{ width: "40px", height: "40px", borderRadius: "50%" }}
+          style={{ width: "30px", height: "30px", borderRadius: "50%" }}
         />
-        <h6 className="ms-3 mb-0" style={{ fontWeight: "600", color: "#fff" }}>
+        <h6 className="ms-2 mb-0" style={{ fontWeight: "600", color: "#fff" }}>
           @{props.items.owner.userName}
         </h6>
       </div>
-      <div className="container-fluid d-flex row">
+
+      <div
+        className="container-fluid d-flex row"
+        style={{
+          position: "relative",
+          zIndex: 2,
+          padding: "5px 10px",
+          color: "#fff",
+        }}
+      >
         <h6
           className="ms-3 mb-0"
-          style={{ fontWeight: "600", color: "#fff", textAlign: "start" }}
+          style={{
+            fontWeight: "600",
+            fontSize: "12px",
+            overflow: "hidden",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            color: "#fff",
+          }}
         >
           {props.items.title}
         </h6>
-        <p className="ms-3 mb-0" style={{ color: "#fff", textAlign: "start" }}>
+        <p
+          className="ms-3 mb-0"
+          style={{
+            color: "#fff",
+            fontSize: "10px",
+            textOverflow: "ellipsis",
+            whiteSpace: "nowrap",
+            overflow: "hidden",
+          }}
+        >
           {props.items.description}
         </p>
       </div>
-      {/* Likes & Comments */}
+
       <div
-        className="d-flex justify-content-between align-items-center mt-3 p-3"
+        className="d-flex justify-content-between align-items-center mt-2 p-2"
         style={{ position: "relative", zIndex: 2 }}
       >
         <div
@@ -265,16 +283,16 @@ export default function VideoTile(props) {
             cursor: "pointer",
             color: liked ? "#ff4d4f" : "#999",
             fontWeight: "500",
-            fontSize: "16px",
+            fontSize: "14px",
             transition: "transform 0.2s ease, color 0.2s ease",
             transform: liked ? "scale(1.2)" : "scale(1)",
           }}
           onClick={handleLike}
         >
           {liked ? (
-            <FavoriteIcon style={{ color: "#ff4d4f", fontSize: "28px" }} />
+            <FavoriteIcon style={{ color: "#ff4d4f", fontSize: "22px" }} />
           ) : (
-            <FavoriteBorderIcon style={{ color: "#999", fontSize: "28px" }} />
+            <FavoriteBorderIcon style={{ color: "#999", fontSize: "22px" }} />
           )}
           <span className="ms-2">{likesCount}</span>
         </div>
@@ -285,11 +303,11 @@ export default function VideoTile(props) {
             cursor: "pointer",
             color: "#1890ff",
             fontWeight: "500",
-            fontSize: "16px",
+            fontSize: "14px",
           }}
         >
           <button
-            onClick={() => getCommentsOnVideo()}
+            onClick={getCommentsOnVideo}
             className="btn btn-link p-0 d-flex align-items-center"
             style={{ textDecoration: "none", color: "#1890ff" }}
           >
@@ -299,7 +317,6 @@ export default function VideoTile(props) {
         </div>
       </div>
 
-      {/* Loader Spinner */}
       {isLoading && (
         <div
           className="d-flex justify-content-center mt-3"
@@ -309,7 +326,6 @@ export default function VideoTile(props) {
         </div>
       )}
 
-      {/* Modal for Comments */}
       <MyVerticallyCenteredModal
         show={isOpen}
         videoId={props.items._id}

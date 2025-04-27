@@ -10,6 +10,7 @@ import {
   updateVideo,
   addtoWatchHistory,
   testUpload,
+  getUserVideos,
 } from "../controllers/videos.controller.js";
 const videosRouter = Router();
 
@@ -51,4 +52,6 @@ videosRouter
 videosRouter.route("/update-watch-history").post(verifyJwt, addtoWatchHistory);
 
 videosRouter.route("/test-upload").post(verifyJwt, testUpload);
+videosRouter.route("/user-videos").get(verifyJwt, getUserVideos);
+
 export default videosRouter;

@@ -77,9 +77,9 @@ const getAllVideos = asyncHandler(async (req, res) => {
     {
       $addFields: {
         isLiked: {
-          $in: [new mongoose.Types.ObjectId(req.user._id), "$likes.likedBy"]
-        }
-      }
+          $in: [new mongoose.Types.ObjectId(req.user._id), "$likes.likedBy"],
+        },
+      },
     },
     {
       $project: {
@@ -94,7 +94,7 @@ const getAllVideos = asyncHandler(async (req, res) => {
         commentsCount: 1,
         owner: 1,
         owner_details: 1,
-        isLiked:1
+        isLiked: 1,
       },
     },
   ]);
@@ -223,6 +223,20 @@ const deleteVideo = asyncHandler(async (req, res) => {
     .json(new ApiResponse(200, videos, "Video deleted successfully"));
 });
 
+const getUserVideos = asyncHandler(async (req, res) => {
+  let userVideos = await Videos.aggregate([
+    {
+      $match: {
+        owner: req.user._id,
+      },
+    },
+  ]);
+
+  if (!userVideos)
+    return res.status(200).json(new ApiResponse(200, null, "no Videos found!"));
+
+  return res.status(200).json(new ApiResponse(200, userVideos, "success"));
+});
 // Toggle publish status
 const togglePublishStatus = asyncHandler(async (req, res) => {
   const { videoId, publishStatus } = extractInput(req, [
@@ -290,4 +304,5 @@ export {
   togglePublishStatus,
   addtoWatchHistory,
   testUpload,
+  getUserVideos,
 };

@@ -16,6 +16,7 @@ import { useVideos } from "../../Context/VideosContext";
 import { CommentsProvider } from "../../Context/CommentsContext";
 import { useNotifications } from "../../Context/NotificationsContext";
 import { useTheme } from "../../Context/ThemeContext";
+import { NavLink } from "react-router";
 export default function HomePage(props) {
   const { videos, fetchVideos } = useVideos();
   const { notifications, getNotifications } = useNotifications();
@@ -26,7 +27,6 @@ export default function HomePage(props) {
   const titleLabel = useRef(null);
   const descriptionLabel = useRef(null);
   const { theme, toggleTheme } = useTheme();
-
 
   const { openFilePicker } = useFilePicker({
     readAs: "DataURL",
@@ -123,8 +123,7 @@ export default function HomePage(props) {
                 alt={noti.users?.userName}
                 src={noti.users?.avatar}
                 style={{ width: "40px", height: "40px", borderRadius: "50%" }}
-                
-              />
+              />{" "}
               <strong className="ms-4">@{noti.users?.userName} </strong>
               {"   "}
               {noti.type === "like"
@@ -161,12 +160,15 @@ export default function HomePage(props) {
           position: "absolute",
           top: "20px",
           right: "20px",
-          bottom:"20px",
+          bottom: "20px",
           cursor: "pointer",
         }}
         onClick={() => setShowNotifications(true)}
       >
-        <CircleNotificationsIcon fontSize="large" sx={{ color: theme === "dark" ? "white" : "black" }} />
+        <CircleNotificationsIcon
+          fontSize="large"
+          sx={{ color: theme === "dark" ? "white" : "black" }}
+        />
         {notifications.length > 0 && (
           <span
             style={{
@@ -184,22 +186,28 @@ export default function HomePage(props) {
           </span>
         )}
       </div>
-  
+
       {/* Header */}
       <header
         className="pb-3 mb-4 border-bottom w-100"
         style={{ borderColor: "#ff0000" }}
       >
         <div className="d-flex align-items-center w-100 justify-content-between">
-          <div className="d-flex align-items-center" style={{ color: theme === "dark" ? "white" : "black" }}>
-            <img
-              className="rounded-circle me-2"
-              src={JSON.parse(user).avatar}
-              style={{ height: "50px", width: "50px", objectFit: "cover" }}
-            />
+          <div
+            className="d-flex align-items-center"
+            style={{ color: theme === "dark" ? "white" : "black" }}
+          >
+            <NavLink to="profile">
+              <img
+                className="rounded-circle me-2"
+                src={JSON.parse(user).avatar}
+                style={{ height: "50px", width: "50px", objectFit: "cover" }}
+              />
+            </NavLink>
+
             <span className="fs-4">{JSON.parse(user).userName}</span>
           </div>
-  
+
           <div className="d-flex align-items-center">
             {/* Theme toggle (already shared earlier) */}
             <div
@@ -227,7 +235,7 @@ export default function HomePage(props) {
                 </>
               )}
             </div>
-  
+
             {/* Logout */}
             <span
               className="fs-5"
@@ -243,7 +251,7 @@ export default function HomePage(props) {
           </div>
         </div>
       </header>
-  
+
       {/* Upload Section */}
       <div className="row w-100 mb-5 justify-content-center">
         <div
@@ -252,7 +260,10 @@ export default function HomePage(props) {
             backgroundColor: theme === "dark" ? "#333" : "#fff",
             color: theme === "dark" ? "#fff" : "#111",
             borderRadius: "15px",
-            boxShadow: theme === "dark" ? "0 4px 12px rgba(0, 0, 0, 0.5)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
+            boxShadow:
+              theme === "dark"
+                ? "0 4px 12px rgba(0, 0, 0, 0.5)"
+                : "0 4px 12px rgba(0, 0, 0, 0.1)",
           }}
         >
           <h2 className="text-center">Upload Video</h2>
@@ -265,7 +276,7 @@ export default function HomePage(props) {
             >
               Title
             </label>
-  
+
             <input
               ref={title}
               type="text"
@@ -278,7 +289,7 @@ export default function HomePage(props) {
                 border: "1px solid #ccc",
               }}
             />
-  
+
             <label
               htmlFor="description"
               ref={descriptionLabel}
@@ -287,7 +298,7 @@ export default function HomePage(props) {
             >
               Description
             </label>
-  
+
             <input
               ref={description}
               type="text"
@@ -301,7 +312,7 @@ export default function HomePage(props) {
               }}
             />
           </div>
-  
+
           <p className="text-center">
             Click on the button below to upload videos
           </p>
@@ -321,7 +332,7 @@ export default function HomePage(props) {
           </button>
         </div>
       </div>
-  
+
       {/* Video Tiles */}
       <div className="row w-100">
         {videos.map((items, index) => (
@@ -332,7 +343,7 @@ export default function HomePage(props) {
           </div>
         ))}
       </div>
-  
+
       {/* Footer */}
       <footer
         className="pt-3 mt-4 text-center text-body-secondary border-top"
@@ -340,7 +351,7 @@ export default function HomePage(props) {
       >
         <span style={{ color: "#ff0000" }}>JustChill © 2025</span>
       </footer>
-  
+
       {/* Notifications Modal */}
       <NotificationModal
         show={showNotifications}
@@ -348,5 +359,4 @@ export default function HomePage(props) {
       />
     </div>
   );
-  
 }

@@ -5,12 +5,13 @@ const VideosContext = createContext();
 import { useLogin } from "./LoginContext";
 export const VideosProvider = ({ children }) => {
   const [videos, setVideos] = useState([]);
+  const [userVideos, setUserVideos] = useState([]);
   const { logout, token } = useLogin();
 
   const fetchVideos = async () => {
     try {
       axios
-        .get("http://localhost:3000/api/v1/videos/get-videos",  {
+        .get("http://localhost:3000/api/v1/videos/get-videos", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",
@@ -21,6 +22,30 @@ export const VideosProvider = ({ children }) => {
             logout();
           } else {
             setVideos(response.data.data);
+          }
+        })
+        .catch((error) => {
+          console.error("Error uploading video:", error);
+        });
+    } catch (err) {
+      console.error("Error fetching videos", err);
+    }
+  };
+
+  const getUserVideos = async () => {
+    try {
+      axios
+        .get("http://localhost:3000/api/v1/videos/user-videos", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        })
+        .then((response) => {
+          if (response.status === 401) {
+            logout();
+          } else {
+            setUserVideos(response.data.data);
           }
         })
         .catch((error) => {
@@ -51,6 +76,8 @@ export const VideosProvider = ({ children }) => {
     <VideosContext.Provider
       value={{
         videos,
+        userVideos,
+        getUserVideos,
         fetchVideos,
         addVideo,
         updateVideo,
