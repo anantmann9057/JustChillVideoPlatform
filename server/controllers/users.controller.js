@@ -32,7 +32,7 @@ const registerUser = asyncHandler(async (req, res) => {
     validateFields(["fullname", "email", "password", "username"], req.body);
 
     const { fullname, email, password, username } = req.body;
-
+    
     const existingUser = await User.findOne({ $or: [{ username }, { email }] });
     if (existingUser) throw new ApiErrorResponse(409, "User already exists");
 

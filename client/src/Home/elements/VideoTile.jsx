@@ -283,10 +283,10 @@ export default function VideoTile(props) {
           className="ms-3 mb-0"
           style={{ fontWeight: "600", color: "#fff", textAlign: "start" }}
         >
-          @{props.items.title}
+          {props.items.title}
         </h7>
         <p className="ms-3 mb-0" style={{ color: "#fff", textAlign: "start" }}>
-          @{props.items.description}
+          {props.items.description}
         </p>
       </div>
       {/* Likes & Comments */}

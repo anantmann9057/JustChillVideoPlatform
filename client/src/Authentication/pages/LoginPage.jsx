@@ -20,7 +20,7 @@ export default function LoginPage() {
       })
       .then((response) => {
         if (response.status === 200) {
-          login(response.data.data.refreshToken);
+          login(response.data.data.refreshToken,response.data.data.loggedInUser);
           localStorage.setItem(
             "user",
             JSON.stringify(response.data.data.loggedInUser)

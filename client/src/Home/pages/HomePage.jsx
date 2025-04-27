@@ -1,6 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import Avatar from "@mui/material/Avatar";
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import VideoTile from "../elements/VideoTile";
 import { useFilePicker } from "use-file-picker";
@@ -14,8 +14,12 @@ import { useVideos } from "../../Context/VideosContext";
 import { CommentsProvider } from "../../Context/CommentsContext";
 export default function HomePage(props) {
   const { videos, fetchVideos } = useVideos();
-  const { logout } = useLogin();
+  const { user, logout } = useLogin();
   const { showLoading, hideLoading } = useLoading();
+  const title = useRef(null);
+  const description = useRef(null);
+  const titleLabel = useRef(null);
+  const descriptionLabel = useRef(null);
   const { openFilePicker } = useFilePicker({
     readAs: "DataURL",
     accept: "video/*",
@@ -29,7 +33,17 @@ export default function HomePage(props) {
     onFilesSuccessfullySelected: ({ plainFiles }) => {
       const firstFile = plainFiles[0];
       if (firstFile) {
-        uploadVideo(plainFiles[0]);
+        if (!title.current.value) {
+          console.log("no value");
+          titleLabel.current.textContent = 'select input'
+        } else if (!description.current.value) {
+          console.log("no value");
+          descriptionLabel.current.textContent = 'select input'
+
+        } else {
+          uploadVideo(plainFiles[0]);
+        }
+        console.log(title.current.value);
       } else {
         console.error("No file selected or file is undefined.");
       }
@@ -54,15 +68,14 @@ export default function HomePage(props) {
         setNotifications(res.data.data);
       })
       .catch((err) => console.log(err));
-
     fetchVideos();
   }, []);
 
   async function uploadVideo(file) {
     showLoading();
     const formData = new FormData();
-    formData.append("title", "dummy");
-    formData.append("description", "dummy");
+    formData.append("title", title.current.value);
+    formData.append("description",description.current.value);
     formData.append("video", file);
     await generateVideoThumbnails(file, 1)
       .then((thumbnailArray) => {
@@ -82,12 +95,13 @@ export default function HomePage(props) {
         if (response.status === 401) {
           logout();
         }
+        fetchVideos();
+        hideLoading();
       })
       .catch((error) => {
         console.error("Error uploading video:", error);
+        hideLoading();
       });
-
-    hideLoading();
   }
 
   const NotificationModal = (props) => (
@@ -180,10 +194,10 @@ export default function HomePage(props) {
           <div className="d-flex align-items-center text-white">
             <img
               className="rounded-circle me-2"
-              src={props.avatar}
+              src={JSON.parse(user).avatar}
               style={{ height: "50px", width: "50px", objectFit: "cover" }}
             />
-            <span className="fs-4 text-white">{props.userName}</span>
+            <span className="fs-4 text-white">{JSON.parse(user).userName}</span>
             <span
               className="fs-4 ms-4"
               style={{
@@ -211,6 +225,45 @@ export default function HomePage(props) {
           }}
         >
           <h2 className="text-white text-center">Upload Video</h2>
+          <div>
+            <label
+              htmlFor="title"
+              className="w-100"
+              ref={titleLabel}
+              style={{
+                textAlign: "start",
+              }}
+            >
+              Title
+            </label>
+
+            <input
+              ref={title}
+              type="text"
+              id="title"
+              placeholder="Input title"
+              className=" w-100"
+            ></input>
+
+            <label
+              htmlFor="description"
+              ref={descriptionLabel}
+              className="w-100"
+              style={{
+                textAlign: "start",
+              }}
+            >
+              Description
+            </label>
+
+            <input
+              ref={description}
+              type="text"
+              id="description"
+              placeholder="Input Description"
+              className="btn-outline-danger w-100"
+            ></input>
+          </div>
           <p className="text-white text-center">
             Click on the button below to upload videos
           </p>
@@ -233,7 +286,9 @@ export default function HomePage(props) {
       <div className="row w-100">
         {videos.map((items, index) => (
           <div key={index} className="col-md-6 col-lg- col-xl-3 col-xs-6 mb-4">
-            <CommentsProvider><VideoTile key={items._id} items={items} /></CommentsProvider>
+            <CommentsProvider>
+              <VideoTile key={items._id} items={items} />
+            </CommentsProvider>
           </div>
         ))}
       </div>
