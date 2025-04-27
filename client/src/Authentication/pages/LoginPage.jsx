@@ -2,7 +2,6 @@ import { useState } from "react";
 import axios from "axios";
 import { useLogin } from "../../Context/LoginContext";
 export default function LoginPage() {
-  const [email, setEmail] = useState("");
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
   const [loading, setLoading] = useState(false);
@@ -14,13 +13,15 @@ export default function LoginPage() {
 
     axios
       .post("https://just-chill.onrender.com/api/v1/users/login", {
-        email,
         username,
         password,
       })
       .then((response) => {
         if (response.status === 200) {
-          login(response.data.data.refreshToken,response.data.data.loggedInUser);
+          login(
+            response.data.data.refreshToken,
+            response.data.data.loggedInUser
+          );
           localStorage.setItem(
             "user",
             JSON.stringify(response.data.data.loggedInUser)
@@ -44,7 +45,11 @@ export default function LoginPage() {
   return (
     <div
       className="container-fluid d-flex align-items-center justify-content-center min-vh-100 px-3"
-      style={{ backgroundColor: "#000", position: "relative", overflow: "hidden" }}
+      style={{
+        backgroundColor: "#000",
+        position: "relative",
+        overflow: "hidden",
+      }}
     >
       {/* Animated Red Background Glow */}
       <div
@@ -53,7 +58,8 @@ export default function LoginPage() {
           position: "absolute",
           width: "500px",
           height: "500px",
-          background: "radial-gradient(circle, rgba(255,0,0,0.3) 0%, transparent 70%)",
+          background:
+            "radial-gradient(circle, rgba(255,0,0,0.3) 0%, transparent 70%)",
           top: "50%",
           left: "50%",
           transform: "translate(-50%, -50%)",
@@ -113,21 +119,6 @@ export default function LoginPage() {
             <form onSubmit={handleSubmit}>
               <div className="form-floating mb-3">
                 <input
-                  type="email"
-                  className="form-control bg-dark text-light border-danger glow-input"
-                  id="email"
-                  placeholder="name@example.com"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  required
-                />
-                <label htmlFor="email" style={{ color: "#aaa" }}>
-                  Email address
-                </label>
-              </div>
-
-              <div className="form-floating mb-3">
-                <input
                   type="text"
                   className="form-control bg-dark text-light border-danger glow-input"
                   id="username"
@@ -185,7 +176,10 @@ export default function LoginPage() {
             <div className="text-center mt-4">
               <small style={{ color: "#aaa" }}>
                 Don't have an account?{" "}
-                <a href="/register" style={{ color: "#ff1a1a", textDecoration: "underline" }}>
+                <a
+                  href="/register"
+                  style={{ color: "#ff1a1a", textDecoration: "underline" }}
+                >
                   Register
                 </a>
               </small>

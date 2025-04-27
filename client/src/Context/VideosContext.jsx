@@ -35,7 +35,7 @@ export const VideosProvider = ({ children }) => {
   const getUserVideos = async () => {
     try {
       axios
-        .get("https://just-chill.onrender.com0/api/v1/videos/user-videos", {
+        .get("https://just-chill.onrender.com/api/v1/videos/user-videos", {
           headers: {
             Authorization: `Bearer ${token}`,
             "Content-Type": "multipart/form-data",

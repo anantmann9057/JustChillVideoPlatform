@@ -4,12 +4,13 @@ import { useTheme } from "../../Context/ThemeContext";
 import Avatar from "@mui/material/Avatar";
 import { useVideos } from "../../Context/VideosContext";
 import { CommentsProvider } from "../../Context/CommentsContext";
-import VideoTile from "../../Home/elements/VideoTile";
 import VideoTileProfile from "../elements/VideoTileProfile";
+
 export default function ProfileScreen() {
   const { theme } = useTheme();
   const { user, logout } = useLogin();
   const { userVideos, getUserVideos } = useVideos();
+  
   // Setting up the state to handle bio editing
   const [bio, setBio] = useState(user.bio || "No bio available.");
   const [isEditing, setIsEditing] = useState(false);
@@ -17,16 +18,19 @@ export default function ProfileScreen() {
   const handleBioChange = (event) => {
     setBio(event.target.value);
   };
+  
   const saveBio = () => {
-    // You can add functionality here to save bio to your backend.
+    // Add functionality here to save bio to your backend
     setIsEditing(false);
   };
+
   useEffect(() => {
     getUserVideos();
-  },[]);
+  }, []);
+
   return (
     <div
-      className="container-fluid w-100 d-flex flex-column align-items-center"
+      className="container-fluid d-flex flex-column align-items-center"
       style={{
         backgroundColor: theme === "dark" ? "#1A1A1A" : "#f9f9f9",
         minHeight: "100vh",
@@ -35,7 +39,7 @@ export default function ProfileScreen() {
     >
       {/* Profile Card */}
       <div
-        className="card w-75 p-4 mb-5"
+        className="card w-100 w-md-75 p-4 mb-5"
         style={{
           backgroundColor: theme === "dark" ? "#333" : "#fff",
           color: theme === "dark" ? "#fff" : "#111",
@@ -46,20 +50,20 @@ export default function ProfileScreen() {
               : "0 4px 12px rgba(0, 0, 0, 0.1)",
         }}
       >
-        {/* Avatar and Username */}
-        <div className="d-flex align-items-center mb-3">
+        {/* Avatar and Username Below the Avatar */}
+        <div className="d-flex flex-column align-items-center mb-3">
           <Avatar
             alt={user.userName}
             src={JSON.parse(user).avatar}
             style={{
-              width: "80px",
-              height: "80px",
+              width: "120px",  // Increased avatar size
+              height: "120px", // Increased avatar size
               objectFit: "cover",
               borderRadius: "50%",
               border: "2px solid #ff0000",
             }}
           />
-          <div className="ms-3">
+          <div className="mt-3 text-center">
             <h4 style={{ color: theme === "dark" ? "white" : "black" }}>
               {JSON.parse(user).userName}
             </h4>
@@ -124,16 +128,18 @@ export default function ProfileScreen() {
           </button>
         </div>
       </div>
+
+      {/* Videos Section */}
       <div className="row w-100">
         {userVideos.map((items, index) => (
-          <div key={index} className="col-md-6 col-lg-4 col-xl-3 col-xs-6 mb-4">
+          <div key={index} className="col-12 col-md-6 col-lg-4 mb-4">
             <CommentsProvider>
               <VideoTileProfile key={items._id} items={items} />
             </CommentsProvider>
           </div>
         ))}
       </div>
-      
+
       {/* Logout Button */}
       <button
         onClick={logout}

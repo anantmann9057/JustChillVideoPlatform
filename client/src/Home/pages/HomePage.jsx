@@ -1,7 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import Avatar from "@mui/material/Avatar";
 import { Sun, Moon } from "lucide-react"; // Add this at the top with other imports
-
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import VideoTile from "../elements/VideoTile";
@@ -81,12 +80,16 @@ export default function HomePage(props) {
         console.error(err);
       });
     axios
-      .post("https://just-chill.onrender.com/api/v1/videos/upload-video", formData, {
-        headers: {
-          Authorization: `Bearer ${props.token}`,
-          "Content-Type": "multipart/form-data",
-        },
-      })
+      .post(
+        "https://just-chill.onrender.com/api/v1/videos/upload-video",
+        formData,
+        {
+          headers: {
+            Authorization: `Bearer ${props.token}`,
+            "Content-Type": "multipart/form-data",
+          },
+        }
+      )
       .then((response) => {
         if (response.status === 401) {
           logout();
@@ -192,24 +195,28 @@ export default function HomePage(props) {
         className="pb-3 mb-4 border-bottom w-100"
         style={{ borderColor: "#ff0000" }}
       >
-        <div className="d-flex align-items-center w-100 justify-content-between">
+        <div className="d-flex align-items-center w-100 flex-wrap">
           <div
-            className="d-flex align-items-center"
+            className="d-flex align-items-center mb-2 mb-sm-0"
             style={{ color: theme === "dark" ? "white" : "black" }}
           >
             <NavLink to="profile">
               <img
                 className="rounded-circle me-2"
                 src={JSON.parse(user).avatar}
-                style={{ height: "50px", width: "50px", objectFit: "cover" }}
+                style={{
+                  height: "40px",
+                  width: "40px",
+                  objectFit: "cover",
+                }}
               />
             </NavLink>
 
-            <span className="fs-4">{JSON.parse(user).userName}</span>
+            <span className="fs-5">{JSON.parse(user).userName}</span>
           </div>
 
-          <div className="d-flex align-items-center">
-            {/* Theme toggle (already shared earlier) */}
+          <div className="d-flex align-items-center mb-2 mb-sm-0 ms-4">
+            {/* Theme toggle */}
             <div
               onClick={toggleTheme}
               style={{
@@ -238,7 +245,7 @@ export default function HomePage(props) {
 
             {/* Logout */}
             <span
-              className="fs-5"
+              className="fs-6 fs-sm-5"
               style={{
                 color: "red",
                 textDecoration: "underline",
@@ -253,9 +260,12 @@ export default function HomePage(props) {
       </header>
 
       {/* Upload Section */}
-      <div className="row w-100 mb-5 justify-content-center">
-        <div
-          className="col-12 col-md-8 col-lg-6 p-5 rounded-3 align-content-center"
+      <Row className="w-100 mb-5 justify-content-center">
+        <Col
+          xs={12}
+          md={8}
+          lg={6}
+          className="p-5 rounded-3 align-content-center"
           style={{
             backgroundColor: theme === "dark" ? "#333" : "#fff",
             color: theme === "dark" ? "#fff" : "#111",
@@ -330,19 +340,19 @@ export default function HomePage(props) {
           >
             Upload Video
           </button>
-        </div>
-      </div>
+        </Col>
+      </Row>
 
       {/* Video Tiles */}
-      <div className="row w-100">
+      <Row className="w-100">
         {videos.map((items, index) => (
-          <div key={index} className="col-md-6 col-lg-4 col-xl-3 col-xs-6 mb-4">
+          <Col key={index} xs={12} md={6} lg={4} xl={3} className="mb-4">
             <CommentsProvider>
               <VideoTile key={items._id} items={items} />
             </CommentsProvider>
-          </div>
+          </Col>
         ))}
-      </div>
+      </Row>
 
       {/* Footer */}
       <footer
