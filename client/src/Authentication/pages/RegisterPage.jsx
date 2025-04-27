@@ -14,6 +14,7 @@ export default function RegistrationPage() {
     coverImage: null,
   });
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false); // 👈 loader state
 
   const handleChange = (e) => {
     const { name, value } = e.target;
@@ -49,6 +50,8 @@ export default function RegistrationPage() {
     submissionData.append("avatar", avatar);
     submissionData.append("coverImage", coverImage);
 
+    setLoading(true); // Start loader
+
     axios
       .post("https://just-chill.onrender.com/api/v1/users/register", submissionData, {
         headers: {
@@ -61,6 +64,9 @@ export default function RegistrationPage() {
       .catch((err) => {
         console.error(err);
         setError("Something went wrong. Please try again.");
+      })
+      .finally(() => {
+        setLoading(false); // Stop loader
       });
   };
 
@@ -177,17 +183,28 @@ export default function RegistrationPage() {
             />
           </div>
 
+          {/* Button with spinner */}
           <button
             type="submit"
-            className="btn btn-danger w-100"
+            className="btn btn-danger w-100 d-flex justify-content-center align-items-center"
             style={{
               backgroundColor: "#ff0000",
               border: "none",
               padding: "10px",
               fontSize: "16px",
             }}
+            disabled={loading}
           >
-            Register
+            {loading ? (
+              <div
+                className="spinner-border spinner-border-sm text-light"
+                role="status"
+              >
+                <span className="visually-hidden">Loading...</span>
+              </div>
+            ) : (
+              "Register"
+            )}
           </button>
         </form>
 
