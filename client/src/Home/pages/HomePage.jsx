@@ -1,5 +1,7 @@
 import { Col, Row } from "react-bootstrap";
 import Avatar from "@mui/material/Avatar";
+import { Sun, Moon } from "lucide-react"; // Add this at the top with other imports
+
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import VideoTile from "../elements/VideoTile";
@@ -12,14 +14,20 @@ import { useLogin } from "../../Context/LoginContext";
 import { useLoading } from "../../Context/LoadingContext";
 import { useVideos } from "../../Context/VideosContext";
 import { CommentsProvider } from "../../Context/CommentsContext";
+import { useNotifications } from "../../Context/NotificationsContext";
+import { useTheme } from "../../Context/ThemeContext";
 export default function HomePage(props) {
   const { videos, fetchVideos } = useVideos();
+  const { notifications, getNotifications } = useNotifications();
   const { user, logout } = useLogin();
   const { showLoading, hideLoading } = useLoading();
   const title = useRef(null);
   const description = useRef(null);
   const titleLabel = useRef(null);
   const descriptionLabel = useRef(null);
+  const { theme, toggleTheme } = useTheme();
+
+
   const { openFilePicker } = useFilePicker({
     readAs: "DataURL",
     accept: "video/*",
@@ -35,15 +43,13 @@ export default function HomePage(props) {
       if (firstFile) {
         if (!title.current.value) {
           console.log("no value");
-          titleLabel.current.textContent = 'select input'
+          titleLabel.current.textContent = "select input";
         } else if (!description.current.value) {
           console.log("no value");
-          descriptionLabel.current.textContent = 'select input'
-
+          descriptionLabel.current.textContent = "select input";
         } else {
           uploadVideo(plainFiles[0]);
         }
-        console.log(title.current.value);
       } else {
         console.error("No file selected or file is undefined.");
       }
@@ -54,20 +60,10 @@ export default function HomePage(props) {
     openFilePicker();
   }
 
-  const [notifications, setNotifications] = useState([]);
   const [showNotifications, setShowNotifications] = useState(false);
 
   useEffect(() => {
-    axios
-      .get("http://localhost:3000/api/v1/notifications/get-notification", {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-      })
-      .then((res) => {
-        setNotifications(res.data.data);
-      })
-      .catch((err) => console.log(err));
+    getNotifications();
     fetchVideos();
   }, []);
 
@@ -75,7 +71,7 @@ export default function HomePage(props) {
     showLoading();
     const formData = new FormData();
     formData.append("title", title.current.value);
-    formData.append("description",description.current.value);
+    formData.append("description", description.current.value);
     formData.append("video", file);
     await generateVideoThumbnails(file, 1)
       .then((thumbnailArray) => {
@@ -127,9 +123,10 @@ export default function HomePage(props) {
                 alt={noti.users?.userName}
                 src={noti.users?.avatar}
                 style={{ width: "40px", height: "40px", borderRadius: "50%" }}
+                
               />
               <strong className="ms-4">@{noti.users?.userName} </strong>
-              {"  "}
+              {"   "}
               {noti.type === "like"
                 ? "liked your video."
                 : noti.type === "comment"
@@ -153,21 +150,23 @@ export default function HomePage(props) {
     <div
       className="container-fluid w-100 d-flex flex-column align-items-center justify-content-start position-relative"
       style={{
-        backgroundColor: "#1A1A1A",
+        backgroundColor: theme === "dark" ? "#1A1A1A" : "#f9f9f9",
         minHeight: "100vh",
         padding: "20px",
       }}
     >
+      {/* Notifications Icon */}
       <div
         style={{
           position: "absolute",
           top: "20px",
           right: "20px",
+          bottom:"20px",
           cursor: "pointer",
         }}
         onClick={() => setShowNotifications(true)}
       >
-        <CircleNotificationsIcon fontSize="large" sx={{ color: "white" }} />
+        <CircleNotificationsIcon fontSize="large" sx={{ color: theme === "dark" ? "white" : "black" }} />
         {notifications.length > 0 && (
           <span
             style={{
@@ -185,90 +184,129 @@ export default function HomePage(props) {
           </span>
         )}
       </div>
-
+  
+      {/* Header */}
       <header
         className="pb-3 mb-4 border-bottom w-100"
         style={{ borderColor: "#ff0000" }}
       >
         <div className="d-flex align-items-center w-100 justify-content-between">
-          <div className="d-flex align-items-center text-white">
+          <div className="d-flex align-items-center" style={{ color: theme === "dark" ? "white" : "black" }}>
             <img
               className="rounded-circle me-2"
               src={JSON.parse(user).avatar}
               style={{ height: "50px", width: "50px", objectFit: "cover" }}
             />
-            <span className="fs-4 text-white">{JSON.parse(user).userName}</span>
+            <span className="fs-4">{JSON.parse(user).userName}</span>
+          </div>
+  
+          <div className="d-flex align-items-center">
+            {/* Theme toggle (already shared earlier) */}
+            <div
+              onClick={toggleTheme}
+              style={{
+                cursor: "pointer",
+                backgroundColor: theme === "dark" ? "#444" : "#ccc",
+                borderRadius: "20px",
+                padding: "5px 10px",
+                display: "flex",
+                alignItems: "center",
+                marginRight: "20px",
+                transition: "all 0.3s ease",
+              }}
+            >
+              {theme === "dark" ? (
+                <>
+                  <Sun color="yellow" size={20} className="me-2" />
+                  <span className="text-white">Light</span>
+                </>
+              ) : (
+                <>
+                  <Moon color="purple" size={20} className="me-2" />
+                  <span className="text-dark">Dark</span>
+                </>
+              )}
+            </div>
+  
+            {/* Logout */}
             <span
-              className="fs-4 ms-4"
+              className="fs-5"
               style={{
                 color: "red",
                 textDecoration: "underline",
                 cursor: "pointer",
               }}
-              onClick={() => {
-                logout();
-              }}
+              onClick={() => logout()}
             >
               Logout
             </span>
           </div>
         </div>
       </header>
-
+  
+      {/* Upload Section */}
       <div className="row w-100 mb-5 justify-content-center">
         <div
-          className="col-12 col-md-8 col-lg-6 p-5 text-bg-dark rounded-3 align-content-center"
+          className="col-12 col-md-8 col-lg-6 p-5 rounded-3 align-content-center"
           style={{
-            backgroundColor: "#333",
+            backgroundColor: theme === "dark" ? "#333" : "#fff",
+            color: theme === "dark" ? "#fff" : "#111",
             borderRadius: "15px",
-            boxShadow: "0 4px 12px rgba(0, 0, 0, 0.1)",
+            boxShadow: theme === "dark" ? "0 4px 12px rgba(0, 0, 0, 0.5)" : "0 4px 12px rgba(0, 0, 0, 0.1)",
           }}
         >
-          <h2 className="text-white text-center">Upload Video</h2>
+          <h2 className="text-center">Upload Video</h2>
           <div>
             <label
               htmlFor="title"
               className="w-100"
               ref={titleLabel}
-              style={{
-                textAlign: "start",
-              }}
+              style={{ textAlign: "start" }}
             >
               Title
             </label>
-
+  
             <input
               ref={title}
               type="text"
               id="title"
               placeholder="Input title"
-              className=" w-100"
-            ></input>
-
+              className="w-100 form-control mb-3"
+              style={{
+                backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
+                color: theme === "dark" ? "#fff" : "#000",
+                border: "1px solid #ccc",
+              }}
+            />
+  
             <label
               htmlFor="description"
               ref={descriptionLabel}
               className="w-100"
-              style={{
-                textAlign: "start",
-              }}
+              style={{ textAlign: "start" }}
             >
               Description
             </label>
-
+  
             <input
               ref={description}
               type="text"
               id="description"
-              placeholder="Input Description"
-              className="btn-outline-danger w-100"
-            ></input>
+              placeholder="Input description"
+              className="w-100 form-control mb-3"
+              style={{
+                backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
+                color: theme === "dark" ? "#fff" : "#000",
+                border: "1px solid #ccc",
+              }}
+            />
           </div>
-          <p className="text-white text-center">
+  
+          <p className="text-center">
             Click on the button below to upload videos
           </p>
           <button
-            className="btn btn-outline-danger w-100"
+            className="btn w-100"
             type="button"
             onClick={() => handleFileSelection()}
             style={{
@@ -276,34 +314,39 @@ export default function HomePage(props) {
               color: "#ff0000",
               padding: "12px 20px",
               fontWeight: "500",
+              backgroundColor: "transparent",
             }}
           >
             Upload Video
           </button>
         </div>
       </div>
-
+  
+      {/* Video Tiles */}
       <div className="row w-100">
         {videos.map((items, index) => (
-          <div key={index} className="col-md-6 col-lg- col-xl-3 col-xs-6 mb-4">
+          <div key={index} className="col-md-6 col-lg-4 col-xl-3 col-xs-6 mb-4">
             <CommentsProvider>
               <VideoTile key={items._id} items={items} />
             </CommentsProvider>
           </div>
         ))}
       </div>
-
+  
+      {/* Footer */}
       <footer
         className="pt-3 mt-4 text-center text-body-secondary border-top"
         style={{ borderColor: "#ff0000", width: "100%" }}
       >
         <span style={{ color: "#ff0000" }}>JustChill © 2025</span>
       </footer>
-
+  
+      {/* Notifications Modal */}
       <NotificationModal
         show={showNotifications}
         onHide={() => setShowNotifications(false)}
       />
     </div>
   );
+  
 }

@@ -5,7 +5,7 @@ import { useVideos } from "./VideosContext";
 const CommentsContext = createContext();
 
 export const CommentsProvider = ({ children }) => {
-  const { logout, token } = useLogin(); // <-- move inside here
+  const {token, logout  } = useLogin(); // <-- move inside here
   const [comments, setComments] = useState([]);
   const { fetchVideos } = useVideos();
   const getComments = (videoId) => {
