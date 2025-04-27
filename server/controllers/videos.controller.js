@@ -82,6 +82,11 @@ const getAllVideos = asyncHandler(async (req, res) => {
       },
     },
     {
+      $sort: {
+        createdAt: -1
+      }
+    },
+    {
       $project: {
         videoFile: 1,
         user_details: 1,
