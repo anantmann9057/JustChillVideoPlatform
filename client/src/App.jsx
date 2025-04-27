@@ -6,6 +6,7 @@ import { LoginProvider, useLogin } from "./Context/LoginContext";
 import { VideosProvider } from "./Context/VideosContext";
 import { Routes, Route } from "react-router";
 import ProfileScreen from "./profile/pages/ProfilePage";
+import RegisterPage from "./Authentication/pages/RegisterPage";
 function App() {
   const [getUser, setUser] = useState({});
   const { isLoggedIn } = useLogin();
@@ -38,6 +39,8 @@ function App() {
             </VideosProvider>
           }
         ></Route>
+
+        <Route path="/register" element={<RegisterPage></RegisterPage>}></Route>
       </Routes>
     </>
   );

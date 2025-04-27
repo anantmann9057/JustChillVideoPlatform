@@ -1,6 +1,7 @@
 import { useState } from "react";
 import axios from "axios";
 import { useLogin } from "../../Context/LoginContext";
+import { NavLink } from "react-router";
 export default function LoginPage() {
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
@@ -173,17 +174,20 @@ export default function LoginPage() {
               </button>
             </form>
 
-            <div className="text-center mt-4">
-              <small style={{ color: "#aaa" }}>
-                Don't have an account?{" "}
-                <a
-                  href="/register"
-                  style={{ color: "#ff1a1a", textDecoration: "underline" }}
-                >
-                  Register
-                </a>
-              </small>
-            </div>
+            <NavLink to={"/register"}>
+              {" "}
+              <div className="text-center mt-4">
+                <small style={{ color: "#aaa" }}>
+                  Don't have an account?{" "}
+                  <a
+                    href="/register"
+                    style={{ color: "#ff1a1a", textDecoration: "underline" }}
+                  >
+                    Register
+                  </a>
+                </small>
+              </div>
+            </NavLink>
           </div>
         </div>
       </div>
