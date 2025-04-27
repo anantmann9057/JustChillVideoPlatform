@@ -10,7 +10,7 @@ export const CommentsProvider = ({ children }) => {
   const { fetchVideos } = useVideos();
   const getComments = (videoId) => {
     axios
-      .get("http://localhost:3000/api/v1/comments/get-video-comments", {
+      .get("https://just-chill.onrender.com/api/v1/comments/get-video-comments", {
         headers: {
           Authorization: `Bearer ${token}`,
         },
@@ -32,7 +32,7 @@ export const CommentsProvider = ({ children }) => {
   const postComment = (comment, videoId) => {
     axios
       .post(
-        "http://localhost:3000/api/v1/comments/post-comment",
+        "https://just-chill.onrender.com/api/v1/comments/post-comment",
         {
           comment,
           video_id: videoId,

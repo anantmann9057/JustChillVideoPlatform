@@ -33,7 +33,7 @@ export default function VideoTile(props) {
 
   function likeVideo() {
     axios
-      .post("http://localhost:3000/api/v1/likes/toggle-video-like", null, {
+      .post("https://just-chill.onrender.com/api/v1/likes/toggle-video-like", null, {
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -59,7 +59,7 @@ export default function VideoTile(props) {
 
   function unlikeVideo() {
     axios
-      .post("http://localhost:3000/api/v1/likes/toggle-video-unlike", null, {
+      .post("https://just-chill.onrender.com/api/v1/likes/toggle-video-unlike", null, {
         headers: {
           Authorization: "Bearer " + localStorage.getItem("token"),
         },

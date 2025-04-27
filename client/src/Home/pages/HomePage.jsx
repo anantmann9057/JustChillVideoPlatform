@@ -81,7 +81,7 @@ export default function HomePage(props) {
         console.error(err);
       });
     axios
-      .post("http://localhost:3000/api/v1/videos/upload-video", formData, {
+      .post("https://just-chill.onrender.com/api/v1/videos/upload-video", formData, {
         headers: {
           Authorization: `Bearer ${props.token}`,
           "Content-Type": "multipart/form-data",

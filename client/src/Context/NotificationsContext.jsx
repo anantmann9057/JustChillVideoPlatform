@@ -9,7 +9,7 @@ export const NotificationsProvider = ({ children }) => {
   const { token, logout } = useLogin();
   const getNotifications = () => {
     axios
-      .get("http://localhost:3000/api/v1/notifications/get-notification", {
+      .get("https://just-chill.onrender.com/api/v1/notifications/get-notification", {
         headers: {
           Authorization: "Bearer " + token,
         },
@@ -23,7 +23,7 @@ export const NotificationsProvider = ({ children }) => {
   const sendNotifications = (type, videoId) => {
     axios
       .post(
-        "http://localhost:3000/api/v1/notifications/send-like-notification",
+        "https://just-chill.onrender.com/api/v1/notifications/send-like-notification",
         null,
         {
           headers: {

@@ -13,7 +13,7 @@ export default function LoginPage() {
     setLoading(true);
 
     axios
-      .post("http://localhost:3000/api/v1/users/login", {
+      .post("https://just-chill.onrender.com/api/v1/users/login", {
         email,
         username,
         password,
