@@ -7,16 +7,16 @@ import { LoadingProvider } from "./Context/LoadingContext.jsx";
 import { NotificationsProvider } from "./Context/NotificationsContext.jsx";
 import { ThemeProvider } from "./Context/ThemeContext.jsx";
 import ReactDOM from "react-dom/client";
-import { BrowserRouter } from "react-router";
+import { HashRouter } from "react-router";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
       <LoginProvider>
         <LoadingProvider>
           <NotificationsProvider>
-            <BrowserRouter>
+            <HashRouter>
               <App />
-            </BrowserRouter>
+            </HashRouter>
           </NotificationsProvider>
         </LoadingProvider>
       </LoginProvider>
