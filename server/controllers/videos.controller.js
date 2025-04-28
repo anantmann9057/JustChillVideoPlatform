@@ -2,7 +2,7 @@ import mongoose, { SchemaTypes } from "mongoose";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import extractInput from "../utils/Helper.js";
-import { uploadFile } from "../utils/Cloudinary.js";
+import { deleteFile, uploadFile } from "../utils/Cloudinary.js";
 import { Videos } from "../models/videos.models.js";
 import { User } from "../models/users.models.js";
 import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
@@ -83,8 +83,8 @@ const getAllVideos = asyncHandler(async (req, res) => {
     },
     {
       $sort: {
-        createdAt: -1
-      }
+        createdAt: -1,
+      },
     },
     {
       $project: {
@@ -162,7 +162,7 @@ const getVideoById = asyncHandler(async (req, res) => {
   ]);
 
   if (!videos || videos.length === 0)
-    throw new ApiErrorResponse(400, "Video not found");
+    throw res.status(200).json(new ApiResponse(200, videos, "Success"));
   return res.status(200).json(new ApiResponse(200, videos, "Success"));
 });
 
@@ -199,6 +199,7 @@ const updateVideo = asyncHandler(async (req, res) => {
 // Delete a video
 const deleteVideo = asyncHandler(async (req, res) => {
   const { videoId } = extractInput(req, ["videoId"]);
+  await deleteFile(videoId);
 
   const deletedVideo = await Videos.findByIdAndDelete(videoId);
   if (!deletedVideo) throw new ApiErrorResponse(400, "Video not found");
@@ -222,7 +223,6 @@ const deleteVideo = asyncHandler(async (req, res) => {
       },
     },
   ]);
-
   return res
     .status(200)
     .json(new ApiResponse(200, videos, "Video deleted successfully"));

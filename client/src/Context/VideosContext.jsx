@@ -1,5 +1,6 @@
 import axios from "axios";
 import { createContext, useContext, useState } from "react";
+import { useLoading } from "./LoadingContext";
 const VideosContext = createContext();
 
 import { useLogin } from "./LoginContext";
@@ -7,9 +8,10 @@ export const VideosProvider = ({ children }) => {
   const [videos, setVideos] = useState([]);
   const [userVideos, setUserVideos] = useState([]);
   const { logout, token } = useLogin();
-
+  const { showLoading, hideLoading } = useLoading();
   const fetchVideos = async () => {
     try {
+      showLoading();
       axios
         .get("https://just-chill.onrender.com/api/v1/videos/get-videos", {
           headers: {
@@ -18,6 +20,8 @@ export const VideosProvider = ({ children }) => {
           },
         })
         .then((response) => {
+          hideLoading();
+
           if (response.status === 401) {
             logout();
           } else {
@@ -25,15 +29,20 @@ export const VideosProvider = ({ children }) => {
           }
         })
         .catch((error) => {
+          hideLoading();
+
           console.error("Error uploading video:", error);
         });
     } catch (err) {
+      hideLoading();
+
       console.error("Error fetching videos", err);
     }
   };
 
   const getUserVideos = async () => {
     try {
+      showLoading();
       axios
         .get("https://just-chill.onrender.com/api/v1/videos/user-videos", {
           headers: {
@@ -42,6 +51,8 @@ export const VideosProvider = ({ children }) => {
           },
         })
         .then((response) => {
+          hideLoading();
+
           if (response.status === 401) {
             logout();
           } else {
@@ -49,9 +60,12 @@ export const VideosProvider = ({ children }) => {
           }
         })
         .catch((error) => {
+          hideLoading();
+
           console.error("Error uploading video:", error);
         });
     } catch (err) {
+      hideLoading();
       console.error("Error fetching videos", err);
     }
   };
@@ -69,7 +83,35 @@ export const VideosProvider = ({ children }) => {
   };
 
   const deleteVideo = (id) => {
-    setVideos((prev) => prev.filter((video) => video.id !== id));
+    try {
+      showLoading();
+
+      axios
+        .delete("https://just-chill.onrender.com/api/v1/videos/delete-video", {
+          headers: {
+            Authorization: `Bearer ${token}`,
+            "Content-Type": "multipart/form-data",
+          },
+          params: {
+            videoId: id,
+          },
+        })
+        .then((response) => {
+          hideLoading();
+          if (response.status === 401) {
+            logout();
+          } else {
+            fetchVideos();
+          }
+        })
+        .catch((error) => {
+          hideLoading();
+          console.error("Error uploading video:", error);
+        });
+    } catch (err) {
+      hideLoading();
+      console.error("Error fetching videos", err);
+    }
   };
 
   return (

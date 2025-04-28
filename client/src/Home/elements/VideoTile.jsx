@@ -12,6 +12,8 @@ import Spinner from "react-bootstrap/Spinner";
 import { useComments } from "../../Context/CommentsContext";
 import { useNotifications } from "../../Context/NotificationsContext";
 import { useLogin } from "../../Context/LoginContext";
+import { useVideos } from "../../Context/VideosContext";
+import DeleteIcon from "@mui/icons-material/Delete";
 export default function VideoTile(props) {
   const { comments, getComments, postComment } = useComments();
   const [isOpen, setIsOpen] = useState(false);
@@ -19,7 +21,8 @@ export default function VideoTile(props) {
   const [likesCount, setLikesCount] = useState(props.items.totalLikes || 0);
   const [isLoading, setIsLoading] = useState(false);
   const { sendNotifications } = useNotifications();
-  const { logout, token } = useLogin();
+  const { logout, token, user } = useLogin();
+  const { fetchVideos, deleteVideo } = useVideos();
   const handleLike = () => {
     if (liked) {
       setLiked(false);
@@ -33,20 +36,24 @@ export default function VideoTile(props) {
 
   function likeVideo() {
     axios
-      .post("https://just-chill.onrender.com/api/v1/likes/toggle-video-like", null, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-        params: {
-          video_id: props.items._id,
-        },
-      })
+      .post(
+        "https://just-chill.onrender.com/api/v1/likes/toggle-video-like",
+        null,
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          params: {
+            video_id: props.items._id,
+          },
+        }
+      )
       .then((response) => {
         if (response.status === 401) {
           logout();
         } else {
           setLikesCount(likesCount + 1);
-          sendNotifications( "like",props.items._id);
+          sendNotifications("like", props.items._id);
         }
       })
       .catch((error) => {
@@ -59,14 +66,18 @@ export default function VideoTile(props) {
 
   function unlikeVideo() {
     axios
-      .post("https://just-chill.onrender.com/api/v1/likes/toggle-video-unlike", null, {
-        headers: {
-          Authorization: "Bearer " + localStorage.getItem("token"),
-        },
-        params: {
-          video_id: props.items._id,
-        },
-      })
+      .post(
+        "https://just-chill.onrender.com/api/v1/likes/toggle-video-unlike",
+        null,
+        {
+          headers: {
+            Authorization: "Bearer " + localStorage.getItem("token"),
+          },
+          params: {
+            video_id: props.items._id,
+          },
+        }
+      )
       .then((response) => {
         if (response.status === 401) {
           localStorage.clear("user");
@@ -92,7 +103,6 @@ export default function VideoTile(props) {
   }
   useEffect(() => {
     setLiked(props.items.isLiked);
-
   }, []);
   function MyVerticallyCenteredModal(props) {
     const [newComment, setNewComment] = useState("");
@@ -132,7 +142,7 @@ export default function VideoTile(props) {
                 variant="danger"
                 onClick={() => {
                   postComment(newComment, props.videoId);
-                  sendNotifications('comment', props.videoId)
+                  sendNotifications("comment", props.videoId);
                 }}
               >
                 {"Post Comment"}
@@ -163,7 +173,9 @@ export default function VideoTile(props) {
       </Modal>
     );
   }
-
+  function handleVideoDelete() {
+    deleteVideo(props.items._id);
+  }
   return (
     <div
       className="col-12 col-md-4 mb-4 w-100 position-relative"
@@ -231,7 +243,7 @@ export default function VideoTile(props) {
 
       {/* Owner Info */}
       <div
-        className="d-flex align-items-center mt-3 p-3"
+        className="d-flex align-items-center mt-3 p-3 "
         style={{ position: "relative", zIndex: 2 }}
       >
         <Avatar
@@ -242,6 +254,11 @@ export default function VideoTile(props) {
         <h6 className="ms-3 mb-0" style={{ fontWeight: "600", color: "#fff" }}>
           @{props.items.owner.userName}
         </h6>
+        {JSON.parse(user)._id == props.items.owner._id ? (
+          <button onClick={handleVideoDelete}>
+            <DeleteIcon color="error"></DeleteIcon>
+          </button>
+        ) : null}
       </div>
       <div className="container-fluid d-flex row">
         <h6

@@ -91,11 +91,12 @@ export default function HomePage(props) {
         }
       )
       .then((response) => {
+        hideLoading();
+
         if (response.status === 401) {
           logout();
         }
         fetchVideos();
-        hideLoading();
       })
       .catch((error) => {
         console.error("Error uploading video:", error);
