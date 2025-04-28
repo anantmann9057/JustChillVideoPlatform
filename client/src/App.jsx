@@ -40,12 +40,7 @@ function App() {
           }
         ></Route>
 
-<Route
-          path="/register"
-          element={
-            <RegisterPage></RegisterPage>
-          }
-        ></Route>
+        <Route path="/register" element={<RegisterPage></RegisterPage>}></Route>
       </Routes>
     </>
   );

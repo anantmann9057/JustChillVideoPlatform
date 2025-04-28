@@ -1,10 +1,13 @@
 import { createContext, useContext, useState } from "react";
 import axios from "axios";
+import { useLoading } from "./LoadingContext";
 const LoginContext = createContext();
 
 export const LoginProvider = ({ children }) => {
   const [token, setToken] = useState(() => localStorage.getItem("token"));
   const [user, setUser] = useState(() => localStorage.getItem("user"));
+
+  const { showLoading, hideLoading } = useLoading();
   const login = (newToken, newUser) => {
     setToken(newToken);
     setUser(newUser);
@@ -20,6 +23,7 @@ export const LoginProvider = ({ children }) => {
   };
 
   const updateBio = (bio) => {
+    showLoading();
     axios
       .post(
         "https://just-chill.onrender.com/api/v1/users/update-bio",
@@ -33,9 +37,11 @@ export const LoginProvider = ({ children }) => {
         }
       )
       .then(() => {
+        hideLoading();
         getUserDetails();
       })
       .catch((error) => {
+        hideLoading();
         if (error.response && error.response.status === 401) {
           logout();
         }
@@ -44,6 +50,7 @@ export const LoginProvider = ({ children }) => {
   };
 
   const getUserDetails = () => {
+    showLoading();
     axios
       .get("https://just-chill.onrender.com/api/v1/users/getUserDetails", {
         headers: {
@@ -51,10 +58,12 @@ export const LoginProvider = ({ children }) => {
         },
       })
       .then((res) => {
+        hideLoading();
         setUser(JSON.stringify(res.data.data));
         console.log(res.data);
       })
       .catch((error) => {
+        hideLoading();
         if (error.response && error.response.status === 401) {
           logout();
         }
