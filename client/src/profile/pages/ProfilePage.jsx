@@ -8,9 +8,9 @@ import VideoTileProfile from "../elements/VideoTileProfile";
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
-  const { user, logout, getUserDetails,updateBio } = useLogin();
+  const { user, logout, getUserDetails, updateBio } = useLogin();
   const { userVideos, getUserVideos } = useVideos();
-  
+
   // Setting up the state to handle bio editing
   const [bio, setBio] = useState(user.bio || "No bio available.");
   const [isEditing, setIsEditing] = useState(false);
@@ -18,10 +18,10 @@ export default function ProfileScreen() {
   const handleBioChange = (event) => {
     setBio(event.target.value);
   };
-  
+
   const saveBio = () => {
     // Add functionality here to save bio to your backend
-    setIsEditing(false);
+    updateBio(bio);
   };
 
   useEffect(() => {
@@ -57,7 +57,7 @@ export default function ProfileScreen() {
             alt={user.userName}
             src={JSON.parse(user).avatar}
             style={{
-              width: "120px",  // Increased avatar size
+              width: "120px", // Increased avatar size
               height: "120px", // Increased avatar size
               objectFit: "cover",
               borderRadius: "50%",

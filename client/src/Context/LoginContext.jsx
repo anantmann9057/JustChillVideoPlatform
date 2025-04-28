@@ -45,28 +45,32 @@ export const LoginProvider = ({ children }) => {
 
   const getUserDetails = () => {
     axios
-      .get(
-        "https://just-chill.onrender.com/api/v1/users/getUserDetails",
-        {},
-        {
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        }
-      )
+      .get("https://just-chill.onrender.com/api/v1/users/getUserDetails", {
+        headers: {
+          Authorization: `Bearer ${token}`,
+        },
+      })
       .then((res) => {
+        setUser(JSON.stringify(res.data.data));
         console.log(res.data);
       })
       .catch((error) => {
         if (error.response && error.response.status === 401) {
           logout();
         }
-        console.error("Error posting comment:", error);
       });
   };
   return (
     <LoginContext.Provider
-      value={{ user, token, login, logout, isLoggedIn: !!token }}
+      value={{
+        user,
+        token,
+        login,
+        logout,
+        getUserDetails,
+        updateBio,
+        isLoggedIn: !!token,
+      }}
     >
       {children}
     </LoginContext.Provider>

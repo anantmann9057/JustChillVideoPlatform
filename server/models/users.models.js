@@ -12,6 +12,10 @@ const userScheme = new Schema(
       trim: true,
       index: true,
     },
+    bio: {
+      type: String,
+      lowercase: true,
+    },
     email: {
       type: String,
       required: false,
@@ -24,9 +28,7 @@ const userScheme = new Schema(
       trim: true,
       index: true,
     },
-    bio: {
-      type: String,
-    },
+
     avatar: {
       type: String,
       required: true,

@@ -116,11 +116,14 @@ const loginUser = asyncHandler(async (req, res) => {
 });
 
 const updateBio = asyncHandler(async (req, res) => {
-  const bio = extractInput(req, ["bio"]);
+  const {bio} = extractInput(req, ["bio"]);
+
   let updateUser = await User.findByIdAndUpdate(
     req.user._id,
     {
-      bio: bio,
+      $set: {
+        bio: bio,
+      },
     },
     { new: true }
   );
@@ -324,5 +327,5 @@ export {
   updateUserCover,
   getUserChannelProfile,
   getUserWatchHistory,
-  updateBio
+  updateBio,
 };
