@@ -1,6 +1,6 @@
 import { Col, Row } from "react-bootstrap";
 import Avatar from "@mui/material/Avatar";
-import { Sun, Moon } from "lucide-react"; // Add this at the top with other imports
+import { Sun, Moon } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import axios from "axios";
 import VideoTile from "../elements/VideoTile";
@@ -16,16 +16,27 @@ import { CommentsProvider } from "../../Context/CommentsContext";
 import { useNotifications } from "../../Context/NotificationsContext";
 import { useTheme } from "../../Context/ThemeContext";
 import { NavLink } from "react-router";
+
 export default function HomePage(props) {
   const { videos, fetchVideos } = useVideos();
   const { notifications, getNotifications } = useNotifications();
   const { user, logout } = useLogin();
   const { showLoading, hideLoading } = useLoading();
+  const { theme, toggleTheme } = useTheme();
+
   const title = useRef(null);
   const description = useRef(null);
   const titleLabel = useRef(null);
   const descriptionLabel = useRef(null);
-  const { theme, toggleTheme } = useTheme();
+
+  const [titleError, setTitleError] = useState(false);
+  const [descriptionError, setDescriptionError] = useState(false);
+  const [showNotifications, setShowNotifications] = useState(false);
+
+  useEffect(() => {
+    getNotifications();
+    fetchVideos();
+  }, []);
 
   const { openFilePicker } = useFilePicker({
     readAs: "DataURL",
@@ -38,33 +49,39 @@ export default function HomePage(props) {
       console.log("onFilesRejected", errors);
     },
     onFilesSuccessfullySelected: ({ plainFiles }) => {
-      const firstFile = plainFiles[0];
-      if (firstFile) {
-        if (!title.current.value) {
-          console.log("no value");
-          titleLabel.current.textContent = "select input";
-        } else if (!description.current.value) {
-          console.log("no value");
-          descriptionLabel.current.textContent = "select input";
-        } else {
-          uploadVideo(plainFiles[0]);
-        }
-      } else {
-        console.error("No file selected or file is undefined.");
+      if (validateInputs()) {
+        uploadVideo(plainFiles[0]);
       }
     },
   });
 
-  function handleFileSelection() {
-    openFilePicker();
+  function validateInputs() {
+    const titleValue = title.current?.value?.trim();
+    const descriptionValue = description.current?.value?.trim();
+    let isValid = true;
+
+    if (!titleValue || titleValue.length < 2) {
+      titleLabel.current.textContent =
+        "Please enter a valid title (min 2 chars)";
+      setTitleError(true);
+      isValid = false;
+    } else {
+      titleLabel.current.textContent = "Title";
+      setTitleError(false);
+    }
+
+    if (!descriptionValue || descriptionValue.length < 5) {
+      descriptionLabel.current.textContent =
+        "Please enter a valid description (min 5 chars)";
+      setDescriptionError(true);
+      isValid = false;
+    } else {
+      descriptionLabel.current.textContent = "Description";
+      setDescriptionError(false);
+    }
+
+    return isValid;
   }
-
-  const [showNotifications, setShowNotifications] = useState(false);
-
-  useEffect(() => {
-    getNotifications();
-    fetchVideos();
-  }, []);
 
   async function uploadVideo(file) {
     showLoading();
@@ -72,6 +89,7 @@ export default function HomePage(props) {
     formData.append("title", title.current.value);
     formData.append("description", description.current.value);
     formData.append("video", file);
+
     await generateVideoThumbnails(file, 1)
       .then((thumbnailArray) => {
         formData.append("thumbnail", thumbnailArray[0]);
@@ -79,6 +97,7 @@ export default function HomePage(props) {
       .catch((err) => {
         console.error(err);
       });
+
     axios
       .post(
         "https://just-chill.onrender.com/api/v1/videos/upload-video",
@@ -92,7 +111,6 @@ export default function HomePage(props) {
       )
       .then((response) => {
         hideLoading();
-
         if (response.status === 401) {
           logout();
         }
@@ -129,7 +147,6 @@ export default function HomePage(props) {
                 style={{ width: "40px", height: "40px", borderRadius: "50%" }}
               />{" "}
               <strong className="ms-4">@{noti.users?.userName} </strong>
-              {"   "}
               {noti.type === "like"
                 ? "liked your video."
                 : noti.type === "comment"
@@ -158,13 +175,29 @@ export default function HomePage(props) {
         padding: "20px",
       }}
     >
+      {/* Shake Animation */}
+      <style>
+        {`
+          @keyframes shake {
+            0% { transform: translateX(0); }
+            20% { transform: translateX(-5px); }
+            40% { transform: translateX(5px); }
+            60% { transform: translateX(-5px); }
+            80% { transform: translateX(5px); }
+            100% { transform: translateX(0); }
+          }
+          .shake {
+            animation: shake 0.4s;
+          }
+        `}
+      </style>
+
       {/* Notifications Icon */}
       <div
         style={{
           position: "absolute",
           top: "20px",
           right: "20px",
-          bottom: "20px",
           cursor: "pointer",
         }}
         onClick={() => setShowNotifications(true)}
@@ -205,14 +238,9 @@ export default function HomePage(props) {
               <img
                 className="rounded-circle me-2"
                 src={JSON.parse(user).avatar}
-                style={{
-                  height: "40px",
-                  width: "40px",
-                  objectFit: "cover",
-                }}
+                style={{ height: "40px", width: "40px", objectFit: "cover" }}
               />
             </NavLink>
-
             <span className="fs-5">{JSON.parse(user).userName}</span>
           </div>
 
@@ -246,7 +274,7 @@ export default function HomePage(props) {
 
             {/* Logout */}
             <span
-              className="fs-6 fs-sm-5"
+              className="fs-6"
               style={{
                 color: "red",
                 textDecoration: "underline",
@@ -266,7 +294,7 @@ export default function HomePage(props) {
           xs={12}
           md={8}
           lg={6}
-          className="p-5 rounded-3 align-content-center"
+          className="p-5 rounded-3"
           style={{
             backgroundColor: theme === "dark" ? "#333" : "#fff",
             color: theme === "dark" ? "#fff" : "#111",
@@ -293,18 +321,18 @@ export default function HomePage(props) {
               type="text"
               id="title"
               placeholder="Input title"
-              className="w-100 form-control mb-3"
+              className={`w-100 form-control mb-3 ${titleError ? "shake" : ""}`}
               style={{
                 backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
                 color: theme === "dark" ? "#fff" : "#000",
-                border: "1px solid #ccc",
+                border: titleError ? "2px solid red" : "1px solid #ccc",
               }}
             />
 
             <label
               htmlFor="description"
-              ref={descriptionLabel}
               className="w-100"
+              ref={descriptionLabel}
               style={{ textAlign: "start" }}
             >
               Description
@@ -315,11 +343,13 @@ export default function HomePage(props) {
               type="text"
               id="description"
               placeholder="Input description"
-              className="w-100 form-control mb-3"
+              className={`w-100 form-control mb-3 ${
+                descriptionError ? "shake" : ""
+              }`}
               style={{
                 backgroundColor: theme === "dark" ? "#222" : "#f5f5f5",
                 color: theme === "dark" ? "#fff" : "#000",
-                border: "1px solid #ccc",
+                border: descriptionError ? "2px solid red" : "1px solid #ccc",
               }}
             />
           </div>
@@ -330,7 +360,7 @@ export default function HomePage(props) {
           <button
             className="btn w-100"
             type="button"
-            onClick={() => handleFileSelection()}
+            onClick={() => openFilePicker()}
             style={{
               borderColor: "#ff0000",
               color: "#ff0000",

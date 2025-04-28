@@ -18,12 +18,14 @@ const userScheme = new Schema(
       unique: true,
       lowercase: true,
       trim: true,
-      index: true,
     },
     fullName: {
       type: String,
       trim: true,
       index: true,
+    },
+    bio: {
+      type: String,
     },
     avatar: {
       type: String,

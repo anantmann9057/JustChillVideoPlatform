@@ -8,7 +8,7 @@ import VideoTileProfile from "../elements/VideoTileProfile";
 
 export default function ProfileScreen() {
   const { theme } = useTheme();
-  const { user, logout } = useLogin();
+  const { user, logout, getUserDetails,updateBio } = useLogin();
   const { userVideos, getUserVideos } = useVideos();
   
   // Setting up the state to handle bio editing
@@ -26,6 +26,7 @@ export default function ProfileScreen() {
 
   useEffect(() => {
     getUserVideos();
+    getUserDetails();
   }, []);
 
   return (

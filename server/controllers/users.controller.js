@@ -115,6 +115,21 @@ const loginUser = asyncHandler(async (req, res) => {
     );
 });
 
+const updateBio = asyncHandler(async (req, res) => {
+  const bio = extractInput(req, ["bio"]);
+  let updateUser = await User.findByIdAndUpdate(
+    req.user._id,
+    {
+      bio: bio,
+    },
+    { new: true }
+  );
+
+  if (!updateUser) throw new ApiErrorResponse(400, "User not found");
+
+  return res.status(200).json(new ApiResponse(200, updateUser, "Success"));
+});
+
 // Logout user
 const logoutUser = asyncHandler(async (req, res) => {
   await User.findByIdAndUpdate(
@@ -309,4 +324,5 @@ export {
   updateUserCover,
   getUserChannelProfile,
   getUserWatchHistory,
+  updateBio
 };
