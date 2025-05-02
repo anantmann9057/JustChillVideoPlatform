@@ -12,7 +12,7 @@ export default function ProfileScreen() {
   const { userVideos, getUserVideos } = useVideos();
 
   // Setting up the state to handle bio editing
-  const [bio, setBio] = useState(JSON.parse(user).bio);
+  const [bio, setBio] = useState(user.bio || "No bio available.");
   const [isEditing, setIsEditing] = useState(false);
 
   const handleBioChange = (event) => {

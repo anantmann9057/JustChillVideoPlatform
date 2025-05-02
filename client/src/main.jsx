@@ -11,15 +11,15 @@ import { HashRouter } from "react-router";
 createRoot(document.getElementById("root")).render(
   <StrictMode>
     <ThemeProvider>
-      <LoadingProvider>
-        <LoginProvider>
+      <LoginProvider>
+        <LoadingProvider>
           <NotificationsProvider>
             <HashRouter>
               <App />
             </HashRouter>
           </NotificationsProvider>
-        </LoginProvider>
-      </LoadingProvider>
+        </LoadingProvider>
+      </LoginProvider>
     </ThemeProvider>
   </StrictMode>
 );
