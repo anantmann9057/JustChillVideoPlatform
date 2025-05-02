@@ -42,9 +42,11 @@ export default function ProfileScreen() {
       <div
         className="card w-100 w-md-75 p-4 mb-5"
         style={{
+          backgroundImage: `url("https://static.vecteezy.com/system/resources/previews/008/629/549/non_2x/abstract-banner-template-with-dummy-text-for-web-design-landing-page-background-etc-free-vector.jpg")`,
           backgroundColor: theme === "dark" ? "#333" : "#fff",
           color: theme === "dark" ? "#fff" : "#111",
           borderRadius: "15px",
+
           boxShadow:
             theme === "dark"
               ? "0 4px 12px rgba(0, 0, 0, 0.5)"
@@ -64,7 +66,7 @@ export default function ProfileScreen() {
               border: "2px solid #ff0000",
             }}
           />
-          <div className="mt-3 text-center">
+          <div className="mt-3 text-center" st>
             <h4 style={{ color: theme === "dark" ? "white" : "black" }}>
               {JSON.parse(user).userName}
             </h4>

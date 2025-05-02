@@ -5,6 +5,7 @@ import { ApiErrorResponse } from "../utils/ApiErrorResponse.js";
 import { ApiResponse } from "../utils/ApiResponse.js";
 import { asyncHandler } from "../utils/asynchandler.js";
 import extractInput from "../utils/Helper.js";
+import admin from "firebase-admin";
 
 const sendLikeNotification = asyncHandler(async (req, res) => {
   const { video_id, type } = extractInput(req, ["video_id", "type"]);
@@ -71,6 +72,30 @@ const sendLikeNotification = asyncHandler(async (req, res) => {
       );
   }
 });
+
+const firebaseNotifications = asyncHandler(async (req, res) => {
+  const message = {
+    token: '',
+    notification: {
+      "title":"",
+      "body":"",
+    },
+    android: {
+      priority: "high",
+    },
+    apns: {
+      payload: {
+        aps: {
+          sound: "default",
+        },
+      },
+    },
+  };
+  await admin.messaging().send(message);
+
+  return res.status(200).json(new ApiResponse(200, req.body, "success"));
+});
+
 const getNotifications = asyncHandler(async (req, res) => {
   let getReceipent = await Notifications.aggregate([
     {
@@ -99,4 +124,5 @@ const getNotifications = asyncHandler(async (req, res) => {
   console.log(getReceipent);
   return res.status(200).json(new ApiResponse(200, getReceipent, "Success"));
 });
-export { sendLikeNotification, getNotifications };
+
+export { sendLikeNotification, getNotifications, firebaseNotifications };

@@ -26,7 +26,9 @@ export const LoginProvider = ({ children }) => {
     showLoading();
     axios
       .post(
-        "https://just-chill.onrender.com/api/v1/users/update-bio",
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL+ "users/update-bio"
+          : import.meta.env.VITE_BASE_URL + "users/update-bio",
         {
           bio: bio,
         },
@@ -52,11 +54,16 @@ export const LoginProvider = ({ children }) => {
   const getUserDetails = () => {
     showLoading();
     axios
-      .get("https://just-chill.onrender.com/api/v1/users/getUserDetails", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-      })
+      .get(
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL+ "users/getUserDetails"
+          : import.meta.env.VITE_BASE_URL + "users/getUserDetails",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+        }
+      )
       .then((res) => {
         hideLoading();
         setUser(JSON.stringify(res.data.data));

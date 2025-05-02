@@ -5,19 +5,24 @@ import { useVideos } from "./VideosContext";
 const CommentsContext = createContext();
 
 export const CommentsProvider = ({ children }) => {
-  const {token, logout  } = useLogin(); // <-- move inside here
+  const { token, logout } = useLogin(); // <-- move inside here
   const [comments, setComments] = useState([]);
   const { fetchVideos } = useVideos();
   const getComments = (videoId) => {
     axios
-      .get("https://just-chill.onrender.com/api/v1/comments/get-video-comments", {
-        headers: {
-          Authorization: `Bearer ${token}`,
-        },
-        params: {
-          video_id: videoId,
-        },
-      })
+      .get(
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL+ "comments/get-video-comments"
+          : import.meta.env.VITE_BASE_URL + "comments/get-video-comments",
+        {
+          headers: {
+            Authorization: `Bearer ${token}`,
+          },
+          params: {
+            video_id: videoId,
+          },
+        }
+      )
       .then((response) => {
         setComments(response.data.data);
       })
@@ -32,7 +37,9 @@ export const CommentsProvider = ({ children }) => {
   const postComment = (comment, videoId) => {
     axios
       .post(
-        "https://just-chill.onrender.com/api/v1/comments/post-comment",
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL+ "comments/post-comment"
+          : import.meta.env.VITE_BASE_URL + "comments/post-comment",
         {
           comment,
           video_id: videoId,

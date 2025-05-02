@@ -13,10 +13,15 @@ export default function LoginPage() {
     setLoading(true);
 
     axios
-      .post("https://just-chill.onrender.com/api/v1/users/login", {
-        username,
-        password,
-      })
+      .post(
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL + "users/login"
+          : import.meta.env.VITE_BASE_URL + "users/login",
+        {
+          username,
+          password,
+        }
+      )
       .then((response) => {
         if (response.status === 200) {
           login(

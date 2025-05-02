@@ -12,9 +12,28 @@ import subsRouter from "./routes/subscriptions.route.js";
 import commentRouter from "./routes/comment.route.js";
 import playlistRouter from "./routes/playlist.route.js";
 import notificationsRouter from "./routes/notifications.route.js";
+import { initializeApp, applicationDefault } from "firebase-admin/app";
+import admin from 'firebase-admin';
+
 const app = express();
 app.use(cookieParser());
 
+initializeApp({
+  credential: applicationDefault(),
+  databaseURL: "https://<DATABASE_NAME>.firebaseio.com",
+});
+
+const firebaseConfig = {
+  apiKey: process.env.FIREBASE_API_KEY,
+  authDomain: process.env.FIREBASE_AUTH_DOMAIN,
+  projectId: process.env.FIREBASE_PROJECT_ID,
+  storageBucket: process.env.FIREBASE_STORAGE_BUCKET,
+  messagingSenderId: process.env.FIREBASE_MESSAGING_SENDER_ID,
+  appId: process.env.FIREBASE_APP_ID,
+};
+const firebaseApp = initializeApp(firebaseConfig);
+// Initialize Firebase Cloud Messaging and get a reference to the service
+const messaging = getMessaging(firebaseApp);
 app.use(
   cors({
     origin: process.env.CORS_ORIGIN,
@@ -38,9 +57,6 @@ app.get("/", (req, res) => {
     message: "hello",
   });
 });
-
-
-
 
 app.use("/api/v1/healthCheck", healthcheckRouter);
 

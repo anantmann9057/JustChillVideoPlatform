@@ -53,7 +53,7 @@ export default function RegistrationPage() {
     setLoading(true); // Start loader
 
     axios
-      .post("https://just-chill.onrender.com/api/v1/users/register", submissionData, {
+      .post( import.meta.env.VITE_ENVIRONMENT==='test'?import.meta.env.VITE_TEST_BASE_URL+"users/register":import.meta.env.VITE_BASE_URL+"users/register", submissionData, {
         headers: {
           "Content-Type": "multipart/form-data",
         },

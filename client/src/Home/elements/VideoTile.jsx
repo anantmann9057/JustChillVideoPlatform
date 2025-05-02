@@ -37,7 +37,9 @@ export default function VideoTile(props) {
   function likeVideo() {
     axios
       .post(
-        "https://just-chill.onrender.com/api/v1/likes/toggle-video-like",
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL + "likes/toggle-video-like"
+          : import.meta.env.VITE_BASE_URL + "likes/toggle-video-like",
         null,
         {
           headers: {
@@ -67,7 +69,9 @@ export default function VideoTile(props) {
   function unlikeVideo() {
     axios
       .post(
-        "https://just-chill.onrender.com/api/v1/likes/toggle-video-unlike",
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL + "likes/toggle-video-unlike"
+          : import.meta.env.VITE_BASE_URL + "likes/toggle-video-unlike",
         null,
         {
           headers: {

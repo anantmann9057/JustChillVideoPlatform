@@ -13,24 +13,26 @@ export const VideosProvider = ({ children }) => {
     try {
       showLoading();
       axios
-        .get("https://just-chill.onrender.com/api/v1/videos/get-videos", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        })
+        .get(
+          import.meta.env.VITE_ENVIRONMENT === "test"
+            ? import.meta.env.VITE_TEST_BASE_URL+ "videos/get-videos"
+            : import.meta.env.VITE_BASE_URL + "videos/get-videos",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
         .then((response) => {
           hideLoading();
-
-          if (response.status === 401) {
-            logout();
-          } else {
-            setVideos(response.data.data);
-          }
+          setVideos(response.data.data);
         })
         .catch((error) => {
           hideLoading();
-
+          if (error.status === 401) {
+            logout();
+          }
           console.error("Error uploading video:", error);
         });
     } catch (err) {
@@ -44,24 +46,27 @@ export const VideosProvider = ({ children }) => {
     try {
       showLoading();
       axios
-        .get("https://just-chill.onrender.com/api/v1/videos/user-videos", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-        })
+        .get(
+          import.meta.env.VITE_ENVIRONMENT === "test"
+            ? import.meta.env.VITE_TEST_BASE_URL+ "videos/user-videos"
+            : import.meta.env.VITE_BASE_URL + "videos/user-videos",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+          }
+        )
         .then((response) => {
           hideLoading();
 
-          if (response.status === 401) {
-            logout();
-          } else {
-            setUserVideos(response.data.data);
-          }
+          setUserVideos(response.data.data);
         })
         .catch((error) => {
           hideLoading();
-
+          if (error.status === 401) {
+            logout();
+          }
           console.error("Error uploading video:", error);
         });
     } catch (err) {
@@ -87,25 +92,29 @@ export const VideosProvider = ({ children }) => {
       showLoading();
 
       axios
-        .delete("https://just-chill.onrender.com/api/v1/videos/delete-video", {
-          headers: {
-            Authorization: `Bearer ${token}`,
-            "Content-Type": "multipart/form-data",
-          },
-          params: {
-            videoId: id,
-          },
-        })
+        .delete(
+          import.meta.env.VITE_ENVIRONMENT === "test"
+            ? import.meta.env.VITE_TEST_BASE_URL+ "videos/delete-video"
+            : import.meta.env.VITE_BASE_URL + "videos/delete-video",
+          {
+            headers: {
+              Authorization: `Bearer ${token}`,
+              "Content-Type": "multipart/form-data",
+            },
+            params: {
+              videoId: id,
+            },
+          }
+        )
         .then((response) => {
           hideLoading();
-          if (response.status === 401) {
-            logout();
-          } else {
-            fetchVideos();
-          }
+          fetchVideos();
         })
         .catch((error) => {
           hideLoading();
+          if (error.status === 401) {
+            logout();
+          }
           console.error("Error uploading video:", error);
         });
     } catch (err) {

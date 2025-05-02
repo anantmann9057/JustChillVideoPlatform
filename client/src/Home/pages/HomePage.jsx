@@ -100,7 +100,9 @@ export default function HomePage(props) {
 
     axios
       .post(
-        "https://just-chill.onrender.com/api/v1/videos/upload-video",
+        import.meta.env.ENVIRONMENT === "test"
+          ? import.meta.env.TEST_BASE_URL
+          : import.meta.env.BASE_URL + "videos/upload-video",
         formData,
         {
           headers: {

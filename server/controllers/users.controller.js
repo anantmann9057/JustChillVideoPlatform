@@ -8,6 +8,9 @@ import { asyncHandler } from "../utils/asynchandler.js";
 import extractInput from "../utils/Helper.js";
 import { lookup } from "dns";
 
+import { OAuth2Client } from "google-auth-library";
+const client = new OAuth2Client();
+
 // Helper function to validate required fields
 const validateFields = (fields, data) => {
   fields.forEach((field) => {
@@ -114,9 +117,46 @@ const loginUser = asyncHandler(async (req, res) => {
       )
     );
 });
+const loginUserGoogle = asyncHandler(async (req, res) => {
+  const { credential, client_id } = extractInput(req, ["bio"]);
 
+  try {
+    const ticket = await client.verifyIdToken({
+      idToken: credential,
+      audience: client_id,
+    });
+    const payload = ticket.getPayload();
+    const { email, given_name, family_name, picture } = payload;
+
+    let user = await User.findOne({ email });
+
+    if (!user) {
+      var result = "";
+      var characters = "123456";
+      var charactersLength = characters.length;
+      for (var i = 0; i < length; i++) {
+        result += characters.charAt(
+          Math.floor(Math.random() * charactersLength)
+        );
+      }
+      user = await User.create({
+        email: email,
+        userName: given_name + result,
+        fullName: given_name + family_name,
+        avatar: "" + picture,
+      });
+    }
+
+    if (!user)
+      throw new ApiErrorResponse(500, "Something seriously went wrong!!!");
+
+    return res.status(200).json(new ApiResponse(200, user, "Success!"));
+  } catch (e) {
+    throw new ApiErrorResponse(400, "something went wrong", e);
+  }
+});
 const updateBio = asyncHandler(async (req, res) => {
-  const {bio} = extractInput(req, ["bio"]);
+  const { bio } = extractInput(req, ["bio"]);
 
   let updateUser = await User.findByIdAndUpdate(
     req.user._id,

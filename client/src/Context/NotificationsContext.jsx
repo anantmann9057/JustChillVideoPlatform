@@ -8,12 +8,18 @@ export const NotificationsProvider = ({ children }) => {
   const [notifications, setNotifications] = useState([]);
   const { token, logout } = useLogin();
   const getNotifications = () => {
+    console.log('env',import.meta.env.BASE_URL);
     axios
-      .get("https://just-chill.onrender.com/api/v1/notifications/get-notification", {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-      })
+      .get(
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL + "notifications/get-notification"
+          : import.meta.env.VITE_BASE_URL + "notifications/get-notification",
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+        }
+      )
       .then((res) => {
         if (res.status == 200) setNotifications(res.data.data);
       })
@@ -23,7 +29,9 @@ export const NotificationsProvider = ({ children }) => {
   const sendNotifications = (type, videoId) => {
     axios
       .post(
-        "https://just-chill.onrender.com/api/v1/notifications/send-like-notification",
+        import.meta.env.VITE_ENVIRONMENT === "test"
+          ? import.meta.env.VITE_TEST_BASE_URL+ "notifications/send-like-notification"
+          : import.meta.env.VITE_BASE_URL + "notifications/send-like-notification",
         null,
         {
           headers: {
@@ -36,7 +44,7 @@ export const NotificationsProvider = ({ children }) => {
         }
       )
       .then((response) => {
-        if(response.status==200) getNotifications();
+        if (response.status == 200) getNotifications();
       })
       .catch((response) => {
         if (response.status === 401) {

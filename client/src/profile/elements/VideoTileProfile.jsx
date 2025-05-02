@@ -35,14 +35,20 @@ export default function VideoTileProfile(props) {
   const likeVideo = () => {
     setIsLoading(true);
     axios
-      .post("http://localhost:3000/api/v1/likes/toggle-video-like", null, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-        params: {
-          video_id: props.items._id,
-        },
-      })
+      .post(
+        import.meta.env.ENVIRONMENT === "test"
+          ? import.meta.env.TEST_BASE_URL
+          : import.meta.env.BASE_URL + "likes/toggle-video-like",
+        null,
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          params: {
+            video_id: props.items._id,
+          },
+        }
+      )
       .then((response) => {
         if (response.status === 401) {
           logout();
@@ -58,14 +64,20 @@ export default function VideoTileProfile(props) {
   const unlikeVideo = () => {
     setIsLoading(true);
     axios
-      .post("http://localhost:3000/api/v1/likes/toggle-video-unlike", null, {
-        headers: {
-          Authorization: "Bearer " + token,
-        },
-        params: {
-          video_id: props.items._id,
-        },
-      })
+      .post(
+        import.meta.env.ENVIRONMENT === "test"
+          ? import.meta.env.TEST_BASE_URL
+          : import.meta.env.BASE_URL + "likes/toggle-video-unlike",
+        null,
+        {
+          headers: {
+            Authorization: "Bearer " + token,
+          },
+          params: {
+            video_id: props.items._id,
+          },
+        }
+      )
       .then((response) => {
         if (response.status === 401) {
           logout();
